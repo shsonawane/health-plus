@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<title>Helath Plus</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="assets/w3.css">
+<body class="w3-content " style="background-color: #f23535;">
+
+<!-- Second Grid: Work & Resume -->
+<div class="w3-row">
+  <div class="w3-half w3-light-grey w3-center" style="min-height:700px" id="work">
+    <div class="w3-padding-32">
+      <h2>Patient</h2>
+      <p>Health is Wealth</p>
+    </div>
+    <div class="w3-row">
+      <div class="w3-half">
+        <img src="assets/coffee.jpg" style="width:100%">
+      </div>
+      <div class="w3-half">
+        <img src="assets/workbench.jpg" style="width:100%">
+      </div>
+    </div>
+    <div class="w3-row w3-hide-small">
+      <div class="w3-half">
+        <img src="assets/workbench.jpg" style="width:100%">
+      </div>
+      <div class="w3-half">
+        <img src="assets/coffee.jpg" style="width:100%">
+      </div>
+    </div>
+
+    <div class="w3-row w3-hide-small">
+      <div class="w3-half">
+        <img src="assets/sound.jpg" style="width:100%">
+      </div>
+      <div class="w3-half">
+        <img src="assets/workbench.jpg" style="width:100%">
+      </div>
+    </div><br><br>
+    <a class="w3-button w3-text-white" style="background-color: #f23535;" href="doctor/doclogin">Doctor Login</a>
+  </div>
+  <div class="w3-half w3-dark-grey w3-container" style="min-height:700px">
+    <div class="w3-padding-64 w3-padding-large">
+      <h1>Login</h1>
+      <p class="w3-opacity">here..</p>
+      <div class="w3-container w3-card w3-padding-64 w3-white">
+      <form action="/patientAuth">
+        <div class="w3-section">
+        
+          <input class="w3-input" style="width:100%;" type="text" required name="uname" placeholder="Username">
+        </div>
+        <div class="w3-section">
+          
+          <input class="w3-input" style="width:100%;" type="Password" required name="pass" placeholder="Password">
+        </div>
+        <button type="submit" class="w3-button w3-text-white w3-right " style="background-color: #f23535;">login</button>
+      </form>
+      <h5 align="center" class="w3-text-black w3-hover-text-red"><a href="patientSignup">Don't have an account? Sign Up</a></h5>
+      <br>
+          <span class="w3-center w3-text-red"><b><%=error%></b></span>
+          <br>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

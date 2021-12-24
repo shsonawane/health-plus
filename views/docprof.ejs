@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html>
+<title>Health Plus</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../assets/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script
+        src="http://code.jquery.com/jquery-3.3.1.slim.js"
+        integrity="sha256-fNXJFIlca05BIO2Y5zh1xrShK3ME+/lYZ0j+ChxX2DA="
+        crossorigin="anonymous"></script>
+    <script src="/socket.io/socket.io.js"></script>   
+<style>
+body, h1,h2,h3,h4,h5,h6 {font-family: "Montserrat", sans-serif}
+.w3-row-padding img {margin-bottom: 12px}
+/* Set the width of the sidebar to 120px */
+.w3-sidebar {width: 120px;background: #222;}
+/* Add a left margin to the "page content" that matches the width of the sidebar (120px) */
+#main {margin-left: 120px}
+/* Remove margins from "page content" on small screens */
+@media only screen and (max-width: 600px) {#main {margin-left: 0}}
+
+form.example input[type=text] {
+    padding: 10px;
+    font-size: 17px;
+    border: 1px solid grey;
+    float: left;
+    width: 80%;
+    background: #f1f1f1;
+}
+
+form.example button {
+    float: left;
+    width: 20%;
+    padding: 10px;
+    background: #2196F3;
+    color: white;
+    font-size: 17px;
+    border: 1px solid grey;
+    border-left: none;
+    cursor: pointer;
+}
+
+form.example button:hover {
+    background: #0b7dda;
+}
+
+form.example::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+/* CSS talk bubble */
+.talk-bubble {
+  margin: 40px;
+  position: relative;
+  width: 300px;
+  height: auto;
+  background-color: #ffa0a0;
+}
+.border{
+  border: 8px solid #666;
+}
+.round{
+  border-radius: 30px;
+  -webkit-border-radius: 30px;
+  -moz-border-radius: 30px;
+
+}
+
+/* Right triangle placed top left flush. */
+.tri-right.border.left-top:before {
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: -40px;
+  right: auto;
+  top: -8px;
+  bottom: auto;
+  border: 32px solid;
+  border-color: #666 transparent transparent transparent;
+}
+.tri-right.left-top:after{
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: -20px;
+  right: auto;
+  top: 0px;
+  bottom: auto;
+  border: 22px solid;
+  border-color: #ffa0a0 transparent transparent transparent;
+}
+
+/* Right triangle, left side slightly down */
+.tri-right.border.left-in:before {
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: -40px;
+  right: auto;
+  top: 30px;
+  bottom: auto;
+  border: 20px solid;
+  border-color: #666 #666 transparent transparent;
+}
+.tri-right.left-in:after{
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: -20px;
+  right: auto;
+  top: 38px;
+  bottom: auto;
+  border: 12px solid;
+  border-color: #ffa0a0 #ffa0a0 transparent transparent;
+}
+
+/*Right triangle, placed bottom left side slightly in*/
+.tri-right.border.btm-left:before {
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: -8px;
+  right: auto;
+  top: auto;
+  bottom: -40px;
+  border: 32px solid;
+  border-color: transparent transparent transparent #666;
+}
+.tri-right.btm-left:after{
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: 0px;
+  right: auto;
+  top: auto;
+  bottom: -20px;
+  border: 22px solid;
+  border-color: transparent transparent transparent #ffa0a0;
+}
+
+/*Right triangle, placed bottom left side slightly in*/
+.tri-right.border.btm-left-in:before {
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: 30px;
+  right: auto;
+  top: auto;
+  bottom: -40px;
+  border: 20px solid;
+  border-color: #666 transparent transparent #666;
+}
+.tri-right.btm-left-in:after{
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: 38px;
+  right: auto;
+  top: auto;
+  bottom: -20px;
+  border: 12px solid;
+  border-color: #ffa0a0 transparent transparent #ffa0a0;
+}
+
+/*Right triangle, placed bottom right side slightly in*/
+.tri-right.border.btm-right-in:before {
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: auto;
+  right: 30px;
+  bottom: -40px;
+  border: 20px solid;
+  border-color: #666 #666 transparent transparent;
+}
+.tri-right.btm-right-in:after{
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: auto;
+  right: 38px;
+  bottom: -20px;
+  border: 12px solid;
+  border-color: #ffa0a0 #ffa0a0 transparent transparent;
+}
+/*
+  left: -8px;
+  right: auto;
+  top: auto;
+  bottom: -40px;
+  border: 32px solid;
+  border-color: transparent transparent transparent #666;
+  left: 0px;
+  right: auto;
+  top: auto;
+  bottom: -20px;
+  border: 22px solid;
+  border-color: transparent transparent transparent #ffa0a0;
+
+/*Right triangle, placed bottom right side slightly in*/
+.tri-right.border.btm-right:before {
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: auto;
+  right: -8px;
+  bottom: -40px;
+  border: 20px solid;
+  border-color: #666 #666 transparent transparent;
+}
+.tri-right.btm-right:after{
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: auto;
+  right: 0px;
+  bottom: -20px;
+  border: 12px solid;
+  border-color: #ffa0a0 #ffa0a0 transparent transparent;
+}
+
+/* Right triangle, right side slightly down*/
+.tri-right.border.right-in:before {
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: auto;
+  right: -40px;
+  top: 30px;
+  bottom: auto;
+  border: 20px solid;
+  border-color: #666 transparent transparent #666;
+}
+.tri-right.right-in:after{
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: auto;
+  right: -20px;
+  top: 38px;
+  bottom: auto;
+  border: 12px solid;
+  border-color: #ffa0a0 transparent transparent #ffa0a0;
+}
+
+/* Right triangle placed top right flush. */
+.tri-right.border.right-top:before {
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: auto;
+  right: -40px;
+  top: -8px;
+  bottom: auto;
+  border: 32px solid;
+  border-color: #666 transparent transparent transparent;
+}
+.tri-right.right-top:after{
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: auto;
+  right: -20px;
+  top: 0px;
+  bottom: auto;
+  border: 20px solid;
+  border-color: #ffa0a0 transparent transparent transparent;
+}
+
+/* talk bubble contents */
+.talktext{
+  padding-left: 10px;
+  padding-right: 5px;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  text-align: left;
+}
+
+.talktext p{
+  /* remove webkit p margins */
+  -webkit-margin-before: 0em;
+  -webkit-margin-after: 0em;
+}
+</style>
+<body class="w3-white" >
+
+<!-- Icon Bar (Sidebar - hidden on small screens) -->
+<nav class="w3-sidebar w3-bar-block w3-small w3-hide-small w3-center w3-text-white">
+  <a id="on_home" href="home#" onclick="clickIt(this)" class="w3-bar-item w3-button w3-padding-large w3-black">
+    <i class="fa fa-home w3-xxlarge"></i>
+    <p>HOME</p>
+  </a>
+  <a id="on_about" href="home#doctor" onclick="clickIt(this)" class="w3-bar-item w3-button w3-padding-large w3-hover-black">
+    <i class="fa fa-user-md  w3-xxlarge"></i>
+    <p>DOCTOR</p>
+  </a>
+  <a id="on_contact" href="home#profile" onclick="clickIt(this)" class="w3-bar-item w3-button w3-padding-large w3-hover-black">
+    <i class="fa fas fa-user w3-xxlarge"></i>
+    <p>PROFILE</p>
+  </a>
+  <a id="on_contact" href="logout" onclick="clickIt(this)" class="w3-bar-item w3-button w3-padding-large w3-hover-black">
+    <i class="fa fas fa-sign-out w3-xxlarge"></i>
+    <p>LOGOUT</p>
+  </a>
+</nav>
+
+<!-- Navbar on small screens (Hidden on medium and large screens) -->
+<div class="w3-top w3-hide-large w3-hide-medium" id="myNavbar">
+  <div class="w3-bar w3-black w3-opacity w3-hover-opacity-off w3-center w3-small">
+    <a href="#" class="w3-bar-item w3-button" style="width:25% !important">HOME</a>
+    <a href="#about" class="w3-bar-item w3-button" style="width:25% !important">ABOUT</a>
+    <a href="#photos" class="w3-bar-item w3-button" style="width:25% !important">PHOTOS</a>
+    <a href="#contact" class="w3-bar-item w3-button" style="width:25% !important">CONTACT</a>
+  </div>
+</div>
+
+<!-- Page Content -->
+<div class="w3-padding-large" id="main">
+  <!-- Header/Home -->
+  <header class="w3-container w3-padding-32 w3-center w3-black" id="home">
+    <h1 class="w3-jumbo  w3-animate-top"><span class="w3-hide-small"></span> Doctor's Profile </h1>
+    <p>Health Is Wealth.</p>
+  </header>
+
+   <div class="w3-content w3-justify w3-text-black w3-padding-64" id="about">
+    <hr style="width:200px" class="w3-opacity">
+    <table class="w3-table w3-striped w3-bordered w3-table-all w3-card-4">
+    <tr>
+    <th> <h4 class="w3-padding-16 w3-text-black">Name:</h4></th>
+    <th> <h4 class="w3-padding-16 w3-text-black"><%=doc.fname%> <%=doc.lname%></h4></th>
+    </tr>
+
+    <tr>
+    <th> <h4 class="w3-padding-16 w3-text-black">E-mail:</h4> </th>
+        <th> <h4 class="w3-padding-16 w3-text-black"><%=doc.ename%></h4></th>
+    </tr>
+    <tr>
+    <th> <h4 class="w3-padding-16 w3-text-black">Phone:</h4></th>
+    <th> <h4 class="w3-padding-16 w3-text-black"><%=doc.phone%></h4></th>
+    </tr>
+
+    <tr>
+    <th> <h4 class="w3-padding-16 w3-text-black">Date Of Birth:</h4></th>
+        <th> <h4 class="w3-padding-16 w3-text-black"><%=doc.dob%></h4></th>
+    </tr>
+    <tr>
+    <th> <h4 class="w3-padding-16 w3-text-black">Hospital:</h4></th>
+    <th> <h4 class="w3-padding-16 w3-text-black"><%=doc.hospital%></h4></th>
+    </tr>
+
+    <tr>
+    <th> <h4 class="w3-padding-16 w3-text-black">Qualification:</h4> </th>
+        <th> <h4 class="w3-padding-16 w3-text-black"><%=doc.qualification%></h4></th>
+    </tr>
+    <tr>
+    <th> <h4 class="w3-padding-16 w3-text-black">Specialization:</h4> </th>
+        <th> <h4 class="w3-padding-16 w3-text-black"><%=doc.specialization%></h4></th>
+    </tr>
+
+    </table>
+
+  </div><br>
+
+<%for(var j = 0; j < user.docid.length; j++){
+  if(user.docid[j] == doc.uname){%>
+              <h3 class="w3-center">Chat Box</h3><br>
+   <div id="messageArea" style="margin-right: 150px; margin-left: 150px;">
+            <div >
+                    <div class="w3-panel w3-leftbar w3-rightbar w3-border-red w3-round-large" id="chat" style="height: 400px;padding-top: 20px;padding-bottom: 20px; overflow-y: auto;">
+                      <%for(var i =0; i< chat.length; i++){
+                      %>
+                      <%if(chat[i].from == user.uname){%>
+                      <div class="talk-bubble tri-right right-top" style="margin-left: 60%">
+                        <div class="talktext">
+                            <p><b><%=chat[i].from%></b><br>
+                            <%=chat[i].msg%>
+                          </p>
+                        </div>
+                      </div>
+                      <%}else{%>
+                      <div class="talk-bubble tri-right left-top">
+                         <div class="talktext">
+                          <p>
+                            <b><%=chat[i].from%></b><br>
+                            <%=chat[i].msg%>
+                          </p>
+                         </div>
+                      </div>
+                          <%}
+                          }
+                          %>
+                    </div>
+
+                    <br>
+                    <form id="messageForm">
+                        <div class="form-group">
+                            <span class="w3-text-red">Enter Message</span>
+                            <textarea class="w3-input w3-leftbar w3-rightbar w3-border-red w3-round-large w3-padding" id="message"></textarea>
+                            <br>
+                            <input type="submit" class="w3-button w3-red w3-hover-white w3-round-large" value="Send Message" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+          <%
+         break;
+        }
+        }%>
+
+          <script>
+                $(function(){
+                    var socket = io.connect();
+                    var $messageForm = $('#messageForm');
+                    var $message = $('#message');
+                    var $chat = $('#chat');
+                    var $messageArea = $('#messageArea');
+               
+                    
+                    
+                    $messageForm.submit(function(e){
+                       e.preventDefault();
+                       socket.emit('send message', {msg: $message.val(), from: "<%=user.uname%>", to: "<%=doc.uname%>"});
+                       $message.val(''); 
+                    });
+
+                    socket.on('new message', function(data){
+                      if(data.from == '<%=user.uname%>' || data.from == '<%=doc.uname%>'){
+                       if(data.from == '<%=user.uname%>'){
+                          $chat.append('<div class="talk-bubble tri-right right-top" style="margin-left: 60%;">' +
+                        '<div class="talktext">' +
+                            '<p><b>'+data.from+'</b><br>' +
+                            data.msg+
+                          '</p>' +
+                        '</div>' +
+                      '</div>');
+                       }else{
+                          $chat.append('<div class="talk-bubble tri-right left-top">' +
+                        '<div class="talktext">' +
+                            '<p><b>'+data.from+'</b><br>' +
+                            data.msg+
+                          '</p>' +
+                        '</div>' +
+                      '</div>');
+                       }
+                     }
+                       var elem = document.getElementById('chat');
+                       elem.scrollTop = elem.scrollHeight;
+                    });
+                  });
+             </script>      
+<br><br><br>
+
+</body>
+</html>

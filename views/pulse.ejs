@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Health Plus</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="assets/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+body, h1,h2,h3,h4,h5,h6 {font-family: "Montserrat", sans-serif}
+.w3-row-padding img {margin-bottom: 12px}
+/* Set the width of the sidebar to 120px */
+.w3-sidebar {width: 120px;background: #222;}
+/* Add a left margin to the "page content" that matches the width of the sidebar (120px) */
+#main {margin-left: 120px}
+/* Remove margins from "page content" on small screens */
+@media only screen and (max-width: 600px) {#main {margin-left: 0}}
+
+form.example input[type=text] {
+    padding: 10px;
+    font-size: 17px;
+    border: 1px solid grey;
+    float: left;
+    width: 80%;
+    background: #f1f1f1;
+}
+
+form.example button {
+    float: left;
+    width: 20%;
+    padding: 10px;
+    background: #2196F3;
+    color: white;
+    font-size: 17px;
+    border: 1px solid grey;
+    border-left: none;
+    cursor: pointer;
+}
+
+form.example button:hover {
+    background: #0b7dda;
+}
+
+form.example::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+/*scroll*/
+div.scrollmenu {
+	background-color: #333;
+    overflow: auto;
+    white-space: nowrap;
+    padding-top:20px;
+    padding-bottom:20px;
+}
+
+div.scrollmenu div.il {
+    display: inline-block;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+}
+</style>
+       <script src='/socket.io/socket.io.js'></script>
+        <script>
+            var socket = io.connect();
+			
+			function load(){
+				document.getElementById("data").innerHTML = "<i class='fa fa-gear fa-spin'></i>";
+				//alert("Start!!!");
+				//socket.emit('sensor', '1');
+			}
+			
+			socket.on('pulse',function(data){
+				if(data.uname == "<%=user.uname%>"){
+				if(data.value == "-1"){
+					document.getElementById("data").innerHTML = "Error. Try Again.";
+					clearInterval(Interval);
+				}else{
+					document.getElementById("data").innerHTML = data.value + " BPM";
+					clearInterval(Interval);
+				}
+				}
+				clearInterval(Interval);
+			});
+			
+			function load() {
+				var xhttp = new XMLHttpRequest();
+				xhttp.onreadystatechange = function() {
+					if (this.readyState == 1) {
+						document.getElementById("data").innerHTML = "<i class='fa fa-cog fa-spin'></i>";
+						reset();
+						Interval = setInterval(startTimer, 10);
+					}
+				};
+				xhttp.open("GET", "http://<%=ip%>/sensor?req=2", true);
+				xhttp.send();
+			}
+  
+        </script>
+</head>
+<body class="w3-white" >
+
+<!-- Icon Bar (Sidebar - hidden on small screens) -->
+<nav class="w3-sidebar w3-bar-block w3-small w3-hide-small w3-center w3-text-white">
+  <a id="on_home" href="home" onclick="clickIt(this)" class="w3-bar-item w3-button w3-padding-large w3-black">
+    <i class="fa fa-home w3-xxlarge"></i>
+    <p>HOME</p>
+  </a>
+  <a id="on_about" href="home#doctor" onclick="clickIt(this)" class="w3-bar-item w3-button w3-padding-large w3-hover-black">
+    <i class="fa fa-user-md  w3-xxlarge"></i>
+    <p>DOCTOR</p>
+  </a>
+  
+  <a id="on_contact" href="home#profile" onclick="clickIt(this)" class="w3-bar-item w3-button w3-padding-large w3-hover-black">
+    <i class="fa fas fa-user w3-xxlarge"></i>
+    <p>PROFILE</p>
+  </a>
+  <a id="on_contact" href="logout" onclick="clickIt(this)" class="w3-bar-item w3-button w3-padding-large w3-hover-black">
+    <i class="fa fas fa-sign-out w3-xxlarge"></i>
+    <p>LOGOUT</p>
+  </a>
+</nav>
+
+<!-- Navbar on small screens (Hidden on medium and large screens) -->
+<div class="w3-top w3-hide-large w3-hide-medium" id="myNavbar">
+  <div class="w3-bar w3-black w3-opacity w3-hover-opacity-off w3-center w3-small">
+    <a href="#" class="w3-bar-item w3-button" style="width:25% !important">HOME</a>
+    <a href="#about" class="w3-bar-item w3-button" style="width:25% !important">ABOUT</a>
+    <a href="#photos" class="w3-bar-item w3-button" style="width:25% !important">PHOTOS</a>
+    <a href="#contact" class="w3-bar-item w3-button" style="width:25% !important">CONTACT</a>
+  </div>
+</div>
+
+<!-- Page Content -->
+<div class="w3-padding-large" id="main">
+  <!-- Header/Home -->
+  <header class="w3-container w3-padding-32 w3-center w3-black" id="home">
+    <h1 class="w3-jumbo  w3-animate-top"><span class="w3-hide-small"></span>PULSE RATE</h1>
+    <p>Measure Your Pulse</p>
+  </header>
+
+   <div class="w3-row">
+  <div class="w3-col l4 m4 s4 w3-red w3-center"><p>
+    <a class="w3-button w3-white w3-round-large" href="tempfetch">Temperature</a>
+    </p></div>
+  <div class="w3-col l4 m4 s4 w3-red w3-center"><p>
+      <a class="w3-button w3-white w3-round-large" href="pulsefetch">Pulse Rate</a>
+    </p></div>
+  <div class="w3-col l4 m4 s4 w3-red w3-center"><p>
+      <a class="w3-button w3-white w3-round-large" href="ecgfetch">ECG Diagnosis</a>
+    </p></div>
+</div>
+<br><br>
+
+<%
+var disabled = "disabled";
+
+if(ip != undefined){
+  disabled = "";
+} 
+
+%>
+
+<div class="w3-center" >
+  	<div id="data" class="w3-center w3-text-red" style="font-size:80px;"></div>
+	<div class="w3-text-red w3-xlarge" style="width:100%; font-family: Arial Black, Gadget, sans-serif;" ><span id="seconds">00</span>:<span id="tens">00</span></div><br>
+	<input  onclick="load()"  type="button" name="start" class="w3-button w3-red w3-xxlarge w3-hover-black" value="START" <%=disabled%>>
+</div>
+
+<script>
+
+  var seconds = 00; 
+  var tens = 00; 
+  var appendTens = document.getElementById("tens")
+  var appendSeconds = document.getElementById("seconds")
+  var buttonStart = document.getElementById('button-start');
+  var buttonStop = document.getElementById('button-stop');
+  var buttonReset = document.getElementById('button-reset');
+  var Interval ;
+
+  buttonStart.onclick = function() {
+    
+     clearInterval(Interval);
+     Interval = setInterval(startTimer, 10);
+  }
+  
+    buttonStop.onclick = function() {
+       clearInterval(Interval);
+  }
+  
+
+ function reset(){
+     clearInterval(Interval);
+    tens = "00";
+  	seconds = "00";
+    appendTens.innerHTML = tens;
+  	appendSeconds.innerHTML = seconds;
+  }
+  
+   
+  
+  function startTimer () {
+    tens++; 
+    
+    if(tens < 9){
+      appendTens.innerHTML = "0" + tens;
+    }
+    
+    if (tens > 9){
+      appendTens.innerHTML = tens;
+      
+    } 
+    
+    if (tens > 99) {
+      console.log("seconds");
+      seconds++;
+      appendSeconds.innerHTML = "0" + seconds;
+      tens = 0;
+      appendTens.innerHTML = "0" + 0;
+    }
+    
+    if (seconds > 9){
+      appendSeconds.innerHTML = seconds;
+    }
+  
+  }
+</script>
+	<br>
+<hr class="w3-border-red w3-margin-large" style="margin-left: 300px; margin-right: 300px;">
+<br>
+<h3 class="w3-center w3-padding-large">History</h3>
+<div class="scrollmenu">
+<%if(pulse != "") {
+pulse.sort(function(a,b){return new Date(b.timestamp) - new Date(a.timestamp);});
+%>
+
+     <% for(var i=0; i < pulse.length ; i++){
+		var clr;
+		if(i%2 == 0)
+			clr = "w3-red";
+		else
+			clr = "w3-white w3-text-red";
+		var d = new Date(pulse[i].timestamp);
+	 %>
+     <div class="il <%=clr%>" style="width:250px">
+        <span style="font-size: 70px;"><%=pulse[i].data%></span><span class="w3-xxlarge"> <%=pulse[i].unit%></span>
+        <div class="w3-black w3-padding"><%=d.toDateString()%><br>
+        <span class="w3-small"><%=d.toLocaleTimeString()%></span>
+        </div>
+     </div>
+     <%}%>
+<%}else {%>
+     <div class="il w3-display" style="width:100%; height: 180px;">
+	 <br>
+	 <br>
+	 <br>
+        <h4>No Records</h4>
+     </div>
+<%}%>
+</div>
+</div>
+</body>
+</html>

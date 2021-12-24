@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+<title>Health Plus</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="./assets/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+body, h1,h2,h3,h4,h5,h6 {font-family: "Montserrat", sans-serif}
+.w3-row-padding img {margin-bottom: 12px}
+/* Set the width of the sidebar to 120px */
+.w3-sidebar {width: 120px;background: #222;}
+/* Add a left margin to the "page content" that matches the width of the sidebar (120px) */
+#main {margin-left: 120px}
+/* Remove margins from "page content" on small screens */
+@media only screen and (max-width: 600px) {#main {margin-left: 0}}
+
+form.example input[type=text] {
+    padding: 10px;
+    font-size: 17px;
+    border: 1px solid grey;
+    float: left;
+    width: 80%;
+    background: #f1f1f1;
+}
+
+form.example button {
+    float: left;
+    width: 20%;
+    padding: 10px;
+    background: #2196F3;
+    color: white;
+    font-size: 17px;
+    border: 1px solid grey;
+    border-left: none;
+    cursor: pointer;
+}
+
+form.example button:hover {
+    background: #0b7dda;
+}
+
+form.example::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+
+.fa-beat {
+  animation:fa-beat 5s ease infinite;
+}
+@keyframes fa-beat {
+  0% {
+    transform:scale(1);
+  }
+  5% {
+    transform:scale(1.25);
+  }
+  20% {
+    transform:scale(1);
+  }
+  30% {
+    transform:scale(1);
+  }
+  35% {
+    transform:scale(1.25);
+  }
+  50% {
+    transform:scale(1);
+  }
+  55% {
+    transform:scale(1.25);
+  }
+  70% {
+    transform:scale(1);
+  }
+}
+
+</style>
+<body class="w3-white"  onload="createTimeline()">
+
+<!-- Icon Bar (Sidebar - hidden on small screens) -->
+<nav class="w3-sidebar w3-bar-block w3-small w3-hide-small w3-center w3-text-white">
+  <a id="on_home" href="home" onclick="clickIt(this)" class="w3-bar-item w3-button w3-padding-large w3-black">
+    <i class="fa fa-home w3-xxlarge"></i>
+    <p>HOME</p>
+  </a>
+  <a id="on_about" href="home#doctor" onclick="clickIt(this)" class="w3-bar-item w3-button w3-padding-large w3-hover-black">
+    <i class="fa fa-user-md  w3-xxlarge"></i>
+    <p>DOCTOR</p>
+  </a>
+  
+  <a id="on_contact" href="home#profile" onclick="clickIt(this)" class="w3-bar-item w3-button w3-padding-large w3-hover-black">
+    <i class="fa fas fa-user w3-xxlarge"></i>
+    <p>PROFILE</p>
+  </a>
+  <a id="on_contact" href="logout" onclick="clickIt(this)" class="w3-bar-item w3-button w3-padding-large w3-hover-black">
+    <i class="fa fas fa-sign-out w3-xxlarge"></i>
+    <p>LOGOUT</p>
+  </a>
+</nav>
+
+<!-- Navbar on small screens (Hidden on medium and large screens) -->
+<div class="w3-top w3-hide-large w3-hide-medium" id="myNavbar">
+  <div class="w3-bar w3-black w3-opacity w3-hover-opacity-off w3-center w3-small">
+    <a href="#" class="w3-bar-item w3-button" style="width:25% !important">HOME</a>
+    <a href="#about" class="w3-bar-item w3-button" style="width:25% !important">ABOUT</a>
+    <a href="#photos" class="w3-bar-item w3-button" style="width:25% !important">PHOTOS</a>
+    <a href="#contact" class="w3-bar-item w3-button" style="width:25% !important">CONTACT</a>
+  </div>
+</div>
+
+<div class="w3-padding-large" id="main">
+  <!-- Header/Home -->
+  <header class="w3-container w3-padding-32 w3-center w3-black" id="home">
+    <h1 class="w3-jumbo  w3-animate-top"><span class="w3-hide-small"></span>ECG Diagnosis</h1>
+    <p>Measure Your Heart Condition</p>
+  </header>
+
+      <div class="w3-row">
+  <div class="w3-col l4 m4 s4 w3-red w3-center"><p>
+    <a class="w3-button w3-white w3-round-large" href="tempfetch">Temperature</a>
+    </p></div>
+  <div class="w3-col l4 m4 s4 w3-red w3-center"><p>
+      <a class="w3-button w3-white w3-round-large" href="pulsefetch">Pulse Rate</a>
+    </p></div>
+  <div class="w3-col l4 m4 s4 w3-red w3-center"><p>
+      <a class="w3-button w3-white w3-round-large" href="ecgfetch">ECG Diagnosis</a>
+    </p></div>
+</div>
+  
+	<script type="text/javascript" src="assets/smoothie.js"></script>
+	<script src='/socket.io/socket.io.js'></script>
+    <script type="text/javascript">
+	
+	var arr = [500,500];	
+	var i = 0;
+    var c = 0;
+	var socket = io.connect();			
+	socket.on('ecg',function(data){
+		if(data.uname == "<%=user.uname%>"){
+				arr = arr.concat(data.value);
+		}
+	});
+			
+	  //var arr2 = [308,681,517,506,478,466,546,532,530,534,554,514,475,553,509,824,552,533,497,461,507,498,521,521,525,536,487,571,592,434,727,528,508,489,460,513,557,561,564,561,552,502,572,585,292,691,538,522,474,459,546,585,580,572,571,547,534,598,552,836,574,544,524,481,512,577,585,572,570,580,523,604,602,343,725,562,542,511,490,553,584,577,570,573,519,581,585,326,705,533,522,496,468,545,572,572,570,578,542,577,602,499,825,572,532,507,475,514,566,552,556,554,520,534,573,523,837,568,535,508,475,524,578,570,576,581,524,586,605,462,764,558,534,508,480,528,580,561,570,556,514,579,597,506,646,553,537,488,497,566,579,572,560,522,591,589,333,712,556,536,508,485,545,579,572,572,549,531,594,556,858,576,549,513,485,531,577,592,561,561,531,604,600,307,692,553,521,478,475,554,561,566,560,534,535,595,534,854,568,530,496,465,508,558,558,567,537,514,586,576,350,646,542,525,480,475,557,561,566,567,544,547,593,556,866,580,553,514,487,528,585,596,586,570,530,579,590,454,762,561,528,504,465,528,556,554,568,567,514,564,577,437,748,538,525,494,458,518,555,554,547,546,507,571,580,435,739,553,525,498,470,529,567,570,570,576,543,554,598,552,834,572,538,517,483,521,580,576,572,559];
+	
+      var random = new TimeSeries();
+      setInterval(function() {
+		document.getElementById("c").innerHTML = (i-2500)+"";
+		if(i > 2500){
+			c++;
+				document.getElementById('rb').disabled = false;
+		}
+	    var data;
+		if(typeof arr[i] === 'undefined') {
+			data = arr[i-1];
+		}
+		else {
+			data = arr[i];
+			i++;
+		}
+        random.append(new Date().getTime(), data);
+      }, 20);
+
+      function createTimeline() {
+		var chart = new SmoothieChart({responsive: true, millisPerPixel:18, grid:{strokeStyle:'rgba(119,119,119,0.60)'}}),
+		canvas = document.getElementById('chart'),
+		series = new TimeSeries();
+		chart.addTimeSeries(random, {lineWidth:2.5,strokeStyle:'#00ff00'});
+		chart.streamTo(canvas, 50);
+      }
+	  
+	function load() {
+		document.getElementById('sb').disabled = false;
+		var xhttp = new XMLHttpRequest();
+		xhttp.open("GET", "http://192.168.0.101/sensor?req=3", true);
+		xhttp.send();
+	}
+	
+	function stop() {
+		arr = [500,500];
+		i=0;
+		var xhttp = new XMLHttpRequest();
+		xhttp.open("GET", "http://192.168.0.101/sensor?req=-3", true);
+		xhttp.send();
+	}
+	
+	var ecgtosave = [];
+	function rec() {
+		ecgtosave = [];
+		var ecg = [['msec','mv']];
+		for(var x = c; x < (c+2500); x++){
+			ecg.push([x+"",parseInt(arr[x])]);
+			ecgtosave.push(arr[x]);
+			//if(x == (c+1500)){
+		//	}
+		}
+		drawChart(ecg);
+	}
+
+    </script>
+	
+	<%
+var disabled = "disabled";
+
+if(ip != undefined){
+  disabled = "";
+} 
+
+%>
+	<br><br>
+  <div class="w3-center">
+  		<span id="c" class="w3-left"></span>
+    <canvas id="chart" style="width:100%; height:200px"></canvas>
+	  <input onclick="load()" type="button" name="start" class="w3-button w3-red w3-xxlarge w3-hover-black" <%=disabled%> value="START">  
+	  <input id="sb"onclick="stop()" type="button" name="start" class="w3-button w3-red w3-xxlarge w3-hover-black" disabled value="STOP">
+	  <input id="rb" onclick="rec()" type="button" name="start" class="w3-button w3-red w3-xxlarge w3-hover-black" disabled value="RECORD">	  
+  </div>
+  <br>
+  <br>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart']});
+      //google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart(ecg) {
+        var data = google.visualization.arrayToDataTable(ecg);
+
+        var options = {
+          title: new Date().toLocaleTimeString(),
+          curveType: 'function',
+          legend: { position: 'bottom' },
+		  colors: ['green'],
+		  hAxis: { textPosition: 'none' },
+        };
+		document.getElementById("display").hidden = false;
+		document.getElementById("beat").style.display = "none";		
+		document.getElementById("but").style.display = "inline";
+		var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+        chart.draw(data, options);
+		scrollTo(document.getElementById("display"));
+      }
+	  
+	  function analyze(button){
+		button.style.display = "none";
+		document.getElementById("beat").style.display = "block";
+		var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+				document.getElementById("result").hidden = false;
+				var hrv = JSON.parse(this.responseText);
+				var beat = document.getElementById("beat");
+				beat.innerHTML = "<i class='fa fa-bar-chart w3-text-red w3-xxlarge'></i> <i class='fa fa-check-circle w3-text-red w3-xxlarge'></i>"
+				var json = JSON.parse(this.responseText);
+				var d = new Date(parseInt(json.timestamp));
+				document.getElementById("ts").innerHTML = "<b>"+d.toDateString()+" at "+d.toLocaleTimeString()+"</b>";
+				document.getElementById("hrvimg").src = "/hrv_img?ts="+json.timestamp+"&user="+json.uname;
+				var result = document.getElementById("hrvtable");
+				result.innerHTML = "<tr><td><b>BPM </b></td><td>" + json.data.bpm.toFixed(3) + "</td><tr>";
+				result.innerHTML += "<tr><td><b>IBI </b></td><td>" + json.data.ibi.toFixed(3) + "</td><tr>";
+				result.innerHTML += "<tr><td><b>SDNN </b></td><td>" + json.data.sdnn.toFixed(3) + "</td><tr>";
+				result.innerHTML += "<tr><td><b>SDSD </b></td><td>" + json.data.sdsd.toFixed(3) + "</td><tr>";
+				result.innerHTML += "<tr><td><b>RMSSD </b></td><td>" + json.data.rmssd.toFixed(3) + "</td><tr>";
+				result.innerHTML += "<tr><td><b>PNN20 </b></td><td>" + json.data.nn20 + "</td><tr>";
+				result.innerHTML += "<tr><td><b>PNN20 </b></td><td>" + json.data.nn50 + "</td><tr>";
+				result.innerHTML += "<tr><td><b>PNN20 </b></td><td>" + json.data.pnn20.toFixed(3) + "</td><tr>";
+				result.innerHTML +=  "<tr><td><b>PNN50 </b></td><td>" + json.data.pnn50.toFixed(3) + "</td><tr>";
+				result.innerHTML +=  "<tr><td><b>Low Freq </b>&nbsp;&nbsp;</td><td>" + json.data.lf.toFixed(3) + "</td><tr>";
+				result.innerHTML +=  "<tr><td><b>High Freq </b>&nbsp;&nbsp;</td><td>" + json.data.hf.toFixed(3) + "</td><tr>";
+				result.innerHTML +=  "<tr><td><b>Low Freq </b>&nbsp;&nbsp;</td><td>" +  (json.data.lf/json.data.hf).toFixed(3) + "</td><tr>";
+				scrollTo(beat);
+            }
+        };
+		
+		var arrStr = encodeURIComponent(JSON.stringify(ecgtosave));
+        xmlhttp.open("GET", "/hrv?ecg=" + arrStr, true);
+        xmlhttp.send();
+	  }
+	  
+        function scrollTo(elmnt) {
+			elmnt.scrollIntoView();
+        }
+    </script>
+	<div id="display" class="w3-container w3-padding w3-center" hidden>
+    <div id="curve_chart" style="width: 100%; height: 300px"></div>
+	<button id="but" class="w3-button w3-red w3-hover-white w3-hover-text-red w3-hover-border-red w3-round-large" onclick="analyze(this);">
+		<i class="fa fa-heartbeat w3-xlarge"></i> Analyze
+	</button>
+	<span id="beat"><i class='fa fa-heartbeat fa-4x fa-beat w3-text-red w3-xxlarge'></i></span>
+	</div>
+	<div id="result" class="w3-row w3-container" hidden>
+	<div class="w3-twothird w3-container" >
+	<h6 id="ts" class="w3-text-red w3-center"><br></h6>
+	<img id="hrvimg" class="w3-padding" src="" style="width: 100%"></div>
+	<div class="w3-third w3-container w3-padding-16 w3-text-white w3-card" id="result" style="background-color: #222">
+	<table class=" w3-small " id="hrvtable" style="border-collapse: collapse; border-spacing: 0;">
+	</table>
+	</div>
+	</div>
+	
+		<br>
+<hr class="w3-border-red w3-margin-large" style="margin-left: 300px; margin-right: 300px;">
+<br>
+<h3 class="w3-center w3-padding-large">History</h3>
+	
+	<div style="max-height: 500px; overflow: auto;">
+	
+	<%for(var i = ecg.length-1; i >= 0; i--){
+				var json = ecg[i];
+				var hrv = "<tr><td><b>BPM </b></td><td>" + json.data.bpm.toFixed(3) + "</td><tr>";
+				hrv += "<tr><td><b>IBI </b></td><td>" + json.data.ibi.toFixed(3) + "</td><tr>";
+				hrv += "<tr><td><b>SDNN </b></td><td>" + json.data.sdnn.toFixed(3) + "</td><tr>";
+				hrv += "<tr><td><b>SDSD </b></td><td>" + json.data.sdsd.toFixed(3) + "</td><tr>";
+				hrv += "<tr><td><b>RMSSD </b></td><td>" + json.data.rmssd.toFixed(3) + "</td><tr>";
+				hrv += "<tr><td><b>PNN20 </b></td><td>" + json.data.nn20 + "</td><tr>";
+				hrv += "<tr><td><b>PNN20 </b></td><td>" + json.data.nn50 + "</td><tr>";
+				hrv += "<tr><td><b>PNN20 </b></td><td>" + json.data.pnn20.toFixed(3) + "</td><tr>";
+				hrv +=  "<tr><td><b>PNN50 </b></td><td>" + json.data.pnn50.toFixed(3) + "</td><tr>";
+				hrv +=  "<tr><td><b>Low Freq </b>&nbsp;&nbsp;</td><td>" + json.data.lf.toFixed(3) + "</td><tr>";
+				hrv +=  "<tr><td><b>High Freq </b>&nbsp;&nbsp;</td><td>" + json.data.hf.toFixed(3) + "</td><tr>";
+				hrv +=  "<tr><td><b>Low Freq </b>&nbsp;&nbsp;</td><td>" +  (json.data.lf/json.data.hf).toFixed(3) + "</td><tr>";
+				
+	%>
+	<div class="w3-twothird w3-container w3-center">
+	<h6 id="ts" class="w3-text-red w3-center"><b><%=new Date(json.timestamp).toDateString()%> at <%=new Date(json.timestamp).toLocaleTimeString()%></b></h6>
+	<img id="hrvimg" class="w3-padding" src="/hrv_img?ts=<%=json.timestamp%>&amp;user=<%=json.uname%>" style="width:85%"><br></div>
+	<div class="w3-third w3-container w3-padding-16 w3-text-white w3-card w3-margin-bottom" id="result" style="background-color: #222">
+	<table class=" w3-small " id="hrvtable" style="border-collapse: collapse; border-spacing: 0;">
+	<%- hrv%>
+	</table>
+	</div>
+	<%}
+	if(ecg.length == 0){
+	%>
+		<p class="w3-center">No Records</p>
+	<%
+	}
+	%>
+	</div>
+		</div>
+</body>
+</html>

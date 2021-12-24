@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html>
+<title>Health Plus</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../assets/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script
+        src="http://code.jquery.com/jquery-3.3.1.slim.js"
+        integrity="sha256-fNXJFIlca05BIO2Y5zh1xrShK3ME+/lYZ0j+ChxX2DA="
+        crossorigin="anonymous"></script>
+    <script src="/socket.io/socket.io.js"></script>   
+<style>
+body, h1,h2,h3,h4,h5,h6 {font-family: "Montserrat", sans-serif}
+.w3-row-padding img {margin-bottom: 12px}
+/* Set the width of the sidebar to 120px */
+.w3-sidebar {width: 120px;background: #222;}
+/* Add a left margin to the "page content" that matches the width of the sidebar (120px) */
+#main {margin-left: 120px}
+/* Remove margins from "page content" on small screens */
+@media only screen and (max-width: 600px) {#main {margin-left: 0}}
+
+form.example input[type=text] {
+    padding: 10px;
+    font-size: 17px;
+    border: 1px solid grey;
+    float: left;
+    width: 80%;
+    background: #f1f1f1;
+}
+
+form.example button {
+    float: left;
+    width: 20%;
+    padding: 10px;
+    background: #2196F3;
+    color: white;
+    font-size: 17px;
+    border: 1px solid grey;
+    border-left: none;
+    cursor: pointer;
+}
+
+form.example button:hover {
+    background: #0b7dda;
+}
+
+form.example::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+/* CSS talk bubble */
+.talk-bubble {
+  margin: 40px;
+  position: relative;
+  width: 300px;
+  height: auto;
+  background-color: #ffa0a0;
+}
+.border{
+  border: 8px solid #666;
+}
+.round{
+  border-radius: 30px;
+  -webkit-border-radius: 30px;
+  -moz-border-radius: 30px;
+
+}
+
+/* Right triangle placed top left flush. */
+.tri-right.border.left-top:before {
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: -40px;
+  right: auto;
+  top: -8px;
+  bottom: auto;
+  border: 32px solid;
+  border-color: #666 transparent transparent transparent;
+}
+.tri-right.left-top:after{
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: -20px;
+  right: auto;
+  top: 0px;
+  bottom: auto;
+  border: 22px solid;
+  border-color: #ffa0a0 transparent transparent transparent;
+}
+
+/* Right triangle, left side slightly down */
+.tri-right.border.left-in:before {
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: -40px;
+  right: auto;
+  top: 30px;
+  bottom: auto;
+  border: 20px solid;
+  border-color: #666 #666 transparent transparent;
+}
+.tri-right.left-in:after{
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: -20px;
+  right: auto;
+  top: 38px;
+  bottom: auto;
+  border: 12px solid;
+  border-color: #ffa0a0 #ffa0a0 transparent transparent;
+}
+
+/*Right triangle, placed bottom left side slightly in*/
+.tri-right.border.btm-left:before {
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: -8px;
+  right: auto;
+  top: auto;
+  bottom: -40px;
+  border: 32px solid;
+  border-color: transparent transparent transparent #666;
+}
+.tri-right.btm-left:after{
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: 0px;
+  right: auto;
+  top: auto;
+  bottom: -20px;
+  border: 22px solid;
+  border-color: transparent transparent transparent #ffa0a0;
+}
+
+/*Right triangle, placed bottom left side slightly in*/
+.tri-right.border.btm-left-in:before {
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: 30px;
+  right: auto;
+  top: auto;
+  bottom: -40px;
+  border: 20px solid;
+  border-color: #666 transparent transparent #666;
+}
+.tri-right.btm-left-in:after{
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: 38px;
+  right: auto;
+  top: auto;
+  bottom: -20px;
+  border: 12px solid;
+  border-color: #ffa0a0 transparent transparent #ffa0a0;
+}
+
+/*Right triangle, placed bottom right side slightly in*/
+.tri-right.border.btm-right-in:before {
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: auto;
+  right: 30px;
+  bottom: -40px;
+  border: 20px solid;
+  border-color: #666 #666 transparent transparent;
+}
+.tri-right.btm-right-in:after{
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: auto;
+  right: 38px;
+  bottom: -20px;
+  border: 12px solid;
+  border-color: #ffa0a0 #ffa0a0 transparent transparent;
+}
+/*
+  left: -8px;
+  right: auto;
+  top: auto;
+  bottom: -40px;
+  border: 32px solid;
+  border-color: transparent transparent transparent #666;
+  left: 0px;
+  right: auto;
+  top: auto;
+  bottom: -20px;
+  border: 22px solid;
+  border-color: transparent transparent transparent #ffa0a0;
+
+/*Right triangle, placed bottom right side slightly in*/
+.tri-right.border.btm-right:before {
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: auto;
+  right: -8px;
+  bottom: -40px;
+  border: 20px solid;
+  border-color: #666 #666 transparent transparent;
+}
+.tri-right.btm-right:after{
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: auto;
+  right: 0px;
+  bottom: -20px;
+  border: 12px solid;
+  border-color: #ffa0a0 #ffa0a0 transparent transparent;
+}
+
+/* Right triangle, right side slightly down*/
+.tri-right.border.right-in:before {
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: auto;
+  right: -40px;
+  top: 30px;
+  bottom: auto;
+  border: 20px solid;
+  border-color: #666 transparent transparent #666;
+}
+.tri-right.right-in:after{
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: auto;
+  right: -20px;
+  top: 38px;
+  bottom: auto;
+  border: 12px solid;
+  border-color: #ffa0a0 transparent transparent #ffa0a0;
+}
+
+/* Right triangle placed top right flush. */
+.tri-right.border.right-top:before {
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: auto;
+  right: -40px;
+  top: -8px;
+  bottom: auto;
+  border: 32px solid;
+  border-color: #666 transparent transparent transparent;
+}
+.tri-right.right-top:after{
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: auto;
+  right: -20px;
+  top: 0px;
+  bottom: auto;
+  border: 20px solid;
+  border-color: #ffa0a0 transparent transparent transparent;
+}
+
+/* talk bubble contents */
+.talktext{
+  padding-left: 10px;
+  padding-right: 5px;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  text-align: left;
+}
+.talktext p{
+  /* remove webkit p margins */
+  -webkit-margin-before: 0em;
+  -webkit-margin-after: 0em;
+}
+
+/*scroll*/
+div.scrollmenu {
+	background-color: #333;
+    overflow: auto;
+    white-space: nowrap;
+    padding-top:20px;
+    padding-bottom:20px;
+}
+
+div.scrollmenu div.il {
+    display: inline-block;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+}
+
+</style>
+<body class="w3-white" >
+
+<!-- Icon Bar (Sidebar - hidden on small screens) -->
+<nav class="w3-sidebar w3-bar-block w3-small w3-hide-small w3-center w3-text-white">
+  <a id="on_home" href="dochome#" onclick="clickIt(this)" class="w3-bar-item w3-button w3-padding-large w3-black">
+    <i class="fa fa-home w3-xxlarge"></i>
+    <p>HOME</p>
+  </a>
+  <a id="on_about" href="dochome#patient" onclick="clickIt(this)" class="w3-bar-item w3-button w3-padding-large w3-hover-black">
+    <i class="fa fab fa-product-hunt  w3-xxlarge"></i>
+    <p>PATIENT</p>
+  </a>
+  <a id="on_contact" href="dochome#profile" onclick="clickIt(this)" class="w3-bar-item w3-button w3-padding-large w3-hover-black">
+    <i class="fa fas fa-user w3-xxlarge"></i>
+    <p>PROFILE</p>
+  </a>
+  <a id="on_contact" href="logoutdoc" onclick="clickIt(this)" class="w3-bar-item w3-button w3-padding-large w3-hover-black">
+    <i class="fa fas fa-sign-out w3-xxlarge"></i>
+    <p>LOGOUT</p>
+  </a>
+</nav>
+
+<!-- Navbar on small screens (Hidden on medium and large screens) -->
+<div class="w3-top w3-hide-large w3-hide-medium" id="myNavbar">
+  <div class="w3-bar w3-black w3-opacity w3-hover-opacity-off w3-center w3-small">
+    <a href="#" class="w3-bar-item w3-button" style="width:25% !important">HOME</a>
+    <a href="#about" class="w3-bar-item w3-button" style="width:25% !important">ABOUT</a>
+    <a href="#photos" class="w3-bar-item w3-button" style="width:25% !important">PHOTOS</a>
+    <a href="#contact" class="w3-bar-item w3-button" style="width:25% !important">CONTACT</a>
+  </div>
+</div>
+
+<!-- Page Content -->
+<div class="w3-padding-large" id="main">
+  <!-- Header/Home -->
+  <header class="w3-container w3-padding-32 w3-center w3-black" id="home">
+    <h1 class="w3-jumbo  w3-animate-top"><span class="w3-hide-small"></span> Patient's Profile </h1>
+    <p>Health Is Wealth.</p>
+  </header>
+
+   <div class="w3-content w3-center w3-text-black w3-margin-large" id="about">
+    <hr style="width:200px" class="w3-opacity">
+    <table class="w3-table">
+    <tr>
+    <th> <h6 class="w3-text-black"><b>Name:</b></h6></th>
+    <th> <h6 class="w3-text-black"><%=patprof.fname%> <%=patprof.lname%></h6></th>
+    </tr>
+
+    <tr>
+    <th> <h6 class="w3-text-black"><b>E-mail:</b></h6> </th>
+        <th> <h6 class=" w3-text-black"><%=patprof.ename%></h6></th>
+    </tr>
+    <tr>
+    <th> <h6 class=" w3-text-black"><b>Phone:</b></h6></th>
+    <th> <h6 class=" w3-text-black"><%=patprof.phone%></h6></th>
+    </tr>
+
+    <tr>
+    <th> <h6 class=" w3-text-black"><b>Date Of Birth:</b></h6></th>
+        <th> <h6 class=" w3-text-black"><%=patprof.dob%></h6></th>
+    </tr>
+    <tr>
+    <th> <h6 class=" w3-text-black"><b>Blood-Group:</b></h6></th>
+    <th> <h6 class=" w3-text-black"><%=patprof.bloodgroup%></h6></th>
+    </tr>
+
+    <tr>
+    <th> <h6 class=" w3-text-black"><b>Weight:</b></h6> </th>
+        <th> <h6 class=" w3-text-black"><%=patprof.weight%></h6></th>
+    </tr>
+    <tr>
+    <th> <h6 class=" w3-text-black"><b>Height:</b></h6> </th>
+        <th> <h6 class=" w3-text-black"><%=patprof.height%></h6></th>
+    </tr>
+     <tr>
+    <th> <h6 class=" w3-text-black"><b>Disease:</b></h6> </th>
+        <th> <h6 class=" w3-text-black"><%=patprof.disease%></h6></th>
+    </tr>
+     <tr>
+    <th> <h6 class=" w3-text-black"><b>Description:</b></h6> </th>
+        <th> <h6 class=" w3-text-black"><%=patprof.description%></h6></th>
+    </tr>
+
+    </table>
+	<br>
+<hr class="w3-border-red w3-margin-large" style="margin-left: 300px; margin-right: 300px;">
+  </div>
+
+  <h2 class="w3-center">Records</h2><br>
+	  
+<span class="w3-red w3-xlarge w3-padding-large">Temperature</span>
+<div class="scrollmenu">
+<%if(pattemp != "") {
+pattemp.sort(function(a,b){return new Date(b.timestamp) - new Date(a.timestamp);});
+%>
+     <% for(var i=0; i < pattemp.length ; i++){
+		var clr;
+		if(i%2 == 0)
+			clr = "w3-red";
+		else
+			clr = "w3-white w3-text-red";
+			
+		var d = new Date(pattemp[i].timestamp);
+	 %>
+     <div class="il <%=clr%>" style="width:250px">
+        <span style="font-size: 70px;"><%=pattemp[i].data%></span><span class="w3-xxlarge"> <%=pattemp[i].unit%></span>
+        <div class="w3-black w3-padding"><%=d.toDateString()%><br>
+        <span class="w3-small"><%=d.toLocaleTimeString()%></span>
+        </div>
+     </div>
+     <%}%>
+<%}else {%>
+     <div class="il w3-display" style="width:100%; height: 180px;">
+	 <br>
+	 <br>
+	 <br>
+        <h6>No Records</h6>
+     </div>
+<%}%>
+</div>
+<hr class="w3-opacity">
+<br>
+<span class="w3-red w3-xlarge w3-padding-large"> &nbsp Pulse Rate &nbsp </span>
+<div class="scrollmenu">
+<%if(patpulse != "") {
+patpulse.sort(function(a,b){return new Date(b.timestamp) - new Date(a.timestamp);});
+%>
+
+     <% for(var i=0; i < patpulse.length ; i++){
+		var clr;
+		if(i%2 == 0)
+			clr = "w3-red";
+		else
+			clr = "w3-white w3-text-red";
+		var d = new Date(patpulse[i].timestamp);
+	 %>
+     <div class="il <%=clr%>" style="width:250px">
+        <span style="font-size: 70px;"><%=patpulse[i].data%></span><span class="w3-xxlarge"> <%=patpulse[i].unit%></span>
+        <div class="w3-black w3-padding"><%=d.toDateString()%><br>
+        <span class="w3-small"><%=d.toLocaleTimeString()%></span>
+        </div>
+     </div>
+     <%}%>
+<%}else {%>
+     <div class="il w3-display" style="width:100%; height: 180px;">
+	 <br>
+	 <br>
+	 <br>
+        <h4>No Records</h4>
+     </div>
+<%}%>
+</div>
+<hr class="w3-opacity">
+	<span class="w3-text-red w3-xxlarge w3-margin-left" id="beat" style="display: block;">
+		<i class="fa fa-bar-chart"></i> 
+		<i class="fa fa-heartbeat"></i>
+	<span class="w3-right w3-xlarge w3-text-red">
+			Heart Rate Variability Score &nbsp;&nbsp;&nbsp;
+	</span>
+	</span>
+	<div style="max-height: 500px; overflow: auto;">
+	
+	<%for(var i = patecg.length-1; i >= 0; i--){
+				var json = patecg[i];
+				var hrv = "<tr><td><b>BPM </b></td><td>" + json.data.bpm.toFixed(3) + "</td><tr>";
+				hrv += "<tr><td><b>IBI </b></td><td>" + json.data.ibi.toFixed(3) + "</td><tr>";
+				hrv += "<tr><td><b>SDNN </b></td><td>" + json.data.sdnn.toFixed(3) + "</td><tr>";
+				hrv += "<tr><td><b>SDSD </b></td><td>" + json.data.sdsd.toFixed(3) + "</td><tr>";
+				hrv += "<tr><td><b>RMSSD </b></td><td>" + json.data.rmssd.toFixed(3) + "</td><tr>";
+				hrv += "<tr><td><b>PNN20 </b></td><td>" + json.data.nn20 + "</td><tr>";
+				hrv += "<tr><td><b>PNN20 </b></td><td>" + json.data.nn50 + "</td><tr>";
+				hrv += "<tr><td><b>PNN20 </b></td><td>" + json.data.pnn20.toFixed(3) + "</td><tr>";
+				hrv +=  "<tr><td><b>PNN50 </b></td><td>" + json.data.pnn50.toFixed(3) + "</td><tr>";
+				hrv +=  "<tr><td><b>Low Freq </b>&nbsp;&nbsp;</td><td>" + json.data.lf.toFixed(3) + "</td><tr>";
+				hrv +=  "<tr><td><b>High Freq </b>&nbsp;&nbsp;</td><td>" + json.data.hf.toFixed(3) + "</td><tr>";
+				hrv +=  "<tr><td><b>Low Freq </b>&nbsp;&nbsp;</td><td>" +  (json.data.lf/json.data.hf).toFixed(3) + "</td><tr>";
+				
+	%>
+	<div class="w3-twothird w3-container w3-center">
+	<h6 id="ts" class="w3-text-red w3-center"><b><%=new Date(json.timestamp).toDateString()%> at <%=new Date(json.timestamp).toLocaleTimeString()%></b></h6>
+	<img id="hrvimg" class="w3-padding" src="/hrv_img?ts=<%=json.timestamp%>&amp;user=<%=json.uname%>" style="width:85%"><br></div>
+	<div class="w3-third w3-container w3-padding-16 w3-text-white w3-card w3-margin-bottom" id="result" style="background-color: #222">
+	<table class=" w3-small " id="hrvtable" style="border-collapse: collapse; border-spacing: 0;">
+	<%- hrv%>
+	</table>
+	</div>
+	<%}
+	if(patecg.length == 0){
+	%>
+		<p class="w3-center">No Records</p>
+	<%
+	}
+	%>
+	</div>
+	  
+	  
+	<br>
+<hr class="w3-border-red w3-margin-large" style="margin-left: 300px; margin-right: 300px;">
+<br>
+  <h2 class="w3-center">Chat Room</h2><br>
+	 <br> 
+<div id="messageArea" style="margin-right: 150px; margin-left: 150px;">
+             <div>
+                    <div class="w3-panel w3-leftbar w3-rightbar w3-border-red w3-round-large" id="chat" style="height: 400px;padding-top: 20px;padding-bottom: 20px; overflow-y: auto;">
+                      <%for(var i =0; i< chat.length; i++){%>
+                          <%if(chat[i].from == user){%>
+                      <div class="talk-bubble tri-right right-top" style="margin-left: 60%;">
+                        <div class="talktext">
+                            <p><b><%=chat[i].from%></b><br>
+                            <%=chat[i].msg%>
+                          </p>
+                        </div>
+                      </div>
+                      <%}else{%>
+                      <div class="talk-bubble tri-right left-top">
+                         <div class="talktext">
+                          <p>
+                            <b><%=chat[i].from%></b><br>
+                            <%=chat[i].msg%>
+                          </p>
+                         </div>
+                      </div>
+                          <%}%>
+                      <%}%>
+                    </div><br>
+                    
+                    <form id="messageForm">
+                        <div class="form-group">
+                            <span class="w3-text-red">Enter Message</span>
+                            <textarea class="w3-input w3-leftbar w3-rightbar w3-border-red w3-round-large w3-padding" id="message"></textarea>
+                            <br>
+                            <input type="submit" class="w3-button w3-red w3-hover-white w3-round-large" value="Send Message" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+          </div>
+
+          <script>
+		    var elem = document.getElementById('chat');
+            elem.scrollTop = elem.scrollHeight;
+                $(function(){
+                    var socket = io.connect();
+                    var $messageForm = $('#messageForm');
+                    var $message = $('#message');
+                    var $chat = $('#chat');
+                    var $messageArea = $('#messageArea');
+                    
+                    
+                    $messageForm.submit(function(e){
+                       e.preventDefault();
+                       socket.emit('send message', {msg: $message.val(), from: "<%=user%>", to: "<%=patprof.uname%>"});
+                       $message.val(''); 
+                    });
+                    socket.on('new message', function(data){
+                      if(data.from == '<%=patprof.uname%>' || data.from == '<%=user%>'){
+                      if(data.from == '<%=user%>'){
+                          $chat.append('<div class="talk-bubble tri-right right-top" style="margin-left: 60%;">' +
+                        '<div class="talktext">' +
+                            '<p><b>'+data.from+'</b><br>' +
+                            data.msg+
+                          '</p>' +
+                        '</div>' +
+                      '</div>');
+                       }else{
+                          $chat.append('<div class="talk-bubble tri-right left-top">' +
+                        '<div class="talktext">' +
+                            '<p><b>'+data.from+'</b><br>' +
+                            data.msg+
+                          '</p>' +
+                        '</div>' +
+                      '</div>');
+                       }
+                     }
+                       var elem = document.getElementById('chat');
+                       elem.scrollTop = elem.scrollHeight;
+                    });
+                    });
+             </script>      
+<br><br><br>
+
+
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<title>Health Plus</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../assets/w3.css">
+<script type="text/javascript" src="alertify.js-0.3.11/src/alertify.js"></script> 
+<link rel="stylesheet" type="text/css" href="alertify.js-0.3.11/themes/alertify.core.css"> 
+<link rel="stylesheet" type="text/css" href="alertify.js-0.3.11/themes/alertify.default.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+body, h1,h2,h3,h4,h5,h6 {font-family: "Montserrat", sans-serif}
+.w3-row-padding img {margin-bottom: 12px}
+/* Set the width of the sidebar to 120px */
+.w3-sidebar {width: 120px;background: #222;}
+/* Add a left margin to the "page content" that matches the width of the sidebar (120px) */
+#main {margin-left: 120px}
+/* Remove margins from "page content" on small screens */
+@media only screen and (max-width: 600px) {#main {margin-left: 0}}
+
+form.example input[type=text] {
+    padding: 10px;
+    font-size: 17px;
+    border: 1px solid grey;
+    float: left;
+    width: 80%;
+    background: #f1f1f1;
+}
+
+form.example button {
+    float: left;
+    width: 20%;
+    padding: 10px;
+    background: #2196F3;
+    color: white;
+    font-size: 17px;
+    border: 1px solid grey;
+    border-left: none;
+    cursor: pointer;
+}
+
+form.example button:hover {
+    background: #0b7dda;
+}
+
+form.example::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+
+#dialogoverlay{
+  display: none;
+  opacity: .8;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  background: #FFF;
+  width: 100%;
+  z-index: 10;
+}
+#dialogbox{
+  display: none;
+  position: fixed;
+  background: #000;
+  border-radius:7px; 
+  width:550px;
+  z-index: 10;
+}
+#dialogbox > div{ background:#FFF; margin:8px; }
+#dialogbox > div > #dialogboxhead{ background: red; font-size:19px; padding:10px; color:white; }
+#dialogbox > div > #dialogboxbody{ background:white; padding:20px; color:black; }
+#dialogbox > div > #dialogboxfoot{ background: white; padding:10px; text-align:right; }
+</style>
+<body class="w3-white" >
+
+<!-- Icon Bar (Sidebar - hidden on small screens) -->
+<nav class="w3-sidebar w3-bar-block w3-small w3-hide-small w3-center w3-text-white">
+  <a id="on_home" href="#" onclick="clickIt(this)" class="w3-bar-item w3-button w3-padding-large w3-black">
+    <i class="fa fa-home w3-xxlarge"></i>
+    <p>HOME</p>
+  </a>
+  <a id="on_about" href="#patient" onclick="clickIt(this)" class="w3-bar-item w3-button w3-padding-large w3-hover-black">
+    <i class="fa fab fa-product-hunt  w3-xxlarge"></i>
+    <p>PATIENT</p>
+  </a>
+  <a id="on_contact" href="#profile" onclick="clickIt(this)" class="w3-bar-item w3-button w3-padding-large w3-hover-black">
+    <i class="fa fas fa-user w3-xxlarge"></i>
+    <p>PROFILE</p>
+  </a>
+  <a id="on_contact" href="logoutdoc" onclick="clickIt(this)" class="w3-bar-item w3-button w3-padding-large w3-hover-black">
+    <i class="fa fas fa-sign-out w3-xxlarge"></i>
+    <p>LOGOUT</p>
+  </a>
+</nav>
+
+<!-- Navbar on small screens (Hidden on medium and large screens) -->
+<div class="w3-top w3-hide-large w3-hide-medium" id="myNavbar">
+  <div class="w3-bar w3-black w3-opacity w3-hover-opacity-off w3-center w3-small">
+    <a href="#" class="w3-bar-item w3-button" style="width:25% !important">HOME</a>
+    <a href="#about" class="w3-bar-item w3-button" style="width:25% !important">ABOUT</a>
+    <a href="#photos" class="w3-bar-item w3-button" style="width:25% !important">PHOTOS</a>
+    <a href="#contact" class="w3-bar-item w3-button" style="width:25% !important">CONTACT</a>
+  </div>
+</div>
+
+<!-- Page Content -->
+<div class="w3-padding-large" id="main">
+  <!-- Header/Home -->
+  <header class="w3-container w3-padding-32 w3-center w3-black" id="home">
+    <h1 class="w3-jumbo  w3-animate-top"><span class="w3-hide-small"></span> Health Plus </h1>
+    <p>Health Is Wealth.</p>
+  </header>
+     <div class="w3-row">
+  <div class="w3-col l12 m12 s12 w3-red w3-center"><p>
+        <h2 class="">Doctor's Profile</h2>
+    </p></div>
+</div>
+  
+<br>
+<div class="w3-center">
+<h2>Welcome Dr. <%=user.fname%> <%=user.lname%></h2>
+<%=user.specialization%>, <%=user.hospital%>
+</div>
+<br>
+<hr class="w3-border-red w3-margin-large" style="margin-left: 300px; margin-right: 300px;">
+<br>
+  
+<h2 class="w3-center" id="patient">My Patients</h2>
+
+<%if(patient != ""){%>
+<div style="max-height: 400px; overflow: auto;" class="w3-content w3-justify w3-text-black w3-padding-55">
+  <ul class="w3-ul w3-margin-top" style="list-style-type: none;">
+    
+    
+    <%for(var i=0; i < patient.length ; i++){%>
+    
+    <li class="w3-bar" onclick="window.location='patientprof?puname=<%=patient[i].uname%>'">
+    <img src="assets/man.jpg" class="w3-bar-item w3-circle w3-hide-small" style="width:85px">
+    <div class="w3-bar-item ">
+    <span class="w3-large w3-hover-text-red" style="cursor: pointer;"><%=patient[i].fname%> <%=patient[i].lname%></span><br>
+       <span><%=patient[i].ename%></span>
+    </div>
+    </li>
+  
+     <%}%>
+   </ul>
+ </div>
+    <%}else {%>
+    <h3 class="w3-center">No Patients</h3>
+    <%}%>
+
+
+
+<br>
+<hr class="w3-border-red w3-margin-large" style="margin-left: 300px; margin-right: 300px;">
+<br>
+
+  <h2 class="w3-center" id="profile"><p>Profile</p></h2>
+  <form class="w3-padding-large" action="updatedoc">
+    <label class="w3-text-black w3-large">Firstname</label>
+    <input class="w3-input w3-border w3-padding" type="text" name="fname" value="<%=user.fname%>"><br>
+    <label class="w3-text-black w3-large">Lastname</label>
+    <input class="w3-input w3-border w3-padding" type="text" name="lname" value="<%=user.lname%>"><br>
+    <label class="w3-text-black w3-large">E-mail</label>
+    <input class="w3-input w3-border w3-padding" type="text" name="ename" value="<%=user.ename%>"><br>
+    <label class="w3-text-black w3-large">Date Of Birth </label>
+    <input class="w3-input w3-border w3-padding" type="date" name="dob" value="<%=user.dob%>"><br>
+    <label class="w3-text-black w3-large">Phone</label>
+    <input class="w3-input w3-border w3-padding" type="text" name="phone" value="<%=user.phone%>"><br>
+    <label class="w3-text-black w3-large">Hospital</label>
+    <input class="w3-input w3-border w3-padding" type="text" name="hospital" value="<%=user.hospital%>"><br>
+    <label class="w3-text-black w3-large">Qualification</label>
+    <input class="w3-input w3-border w3-padding" type="text" name="qualification" value="<%=user.qualification%>"><br>
+    <label class="w3-text-black w3-large">Specialization</label>
+    <input class="w3-input w3-border w3-padding" type="text" name="specialization" value="<%=user.specialization%>"><br>
+    <button class="w3-center w3-button w3-red w3-hover-white w3-round-large">Update Profile</button>
+  </form><br>
+
+  <div id="dialogoverlay"></div>
+  <div id="dialogbox">
+    <div>
+      <div id="dialogboxhead"></div>
+      <div id="dialogboxbody"></div>
+      <div id="dialogboxfoot"></div>
+    </div>
+  </div>
+
+  <h2 class="w3-center"><p>Change Password</p></h2>
+  
+  <form  class="w3-padding-large" method="GET" action="javascript:submitdata()">
+    <label class="w3-text-black w3-large">Current Password</label>
+    <input id="curp" class="w3-input w3-border w3-padding" type="Password" required name="currentpass" ><br>
+    <label class="w3-text-black w3-large">New Password</label>
+    <input class="w3-input w3-border w3-padding" type="Password" name="newpass" required id="np"><br>
+    <label class="w3-text-black w3-large">Confirm Password</label>
+    <input class="w3-input w3-border w3-padding" type="Password" name="confirmpass" required id="cp"><br> 
+    <div id="if" class="w3-text-red">
+      
+    </div><br>
+    <button id="button" class="w3-button w3-center w3-red w3-hover-white w3-round-large">Update Password</button>
+  </form><br>
+
+<script type="text/javascript">
+
+function submitdata()
+{
+ var newpass=document.getElementById( "np" ).value;
+ var confirmpass=document.getElementById( "cp" ).value;
+ var currentpass=document.getElementById( "curp" ).value;
+ 
+ if(confirmpass == newpass){
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4) {
+      if(this.status == 200){
+        Alert.render('Password changed successfully.');
+        window.location = 'patientLogin';
+      }else{
+        document.getElementById("if").innerHTML = "Invalid current password!";
+      }
+    }
+  };
+  xhttp.open("GET", "/updatedocpass?currentpass="+currentpass+"&newpass="+newpass, true);
+  xhttp.send();
+  }else{
+    document.getElementById("if").innerHTML = "Password don't match!";
+  }
+}
+
+</script>
+<script>
+function CustomAlert(){
+    this.render = function(dialog){
+        var winW = window.innerWidth;
+        var winH = window.innerHeight;
+        var dialogoverlay = document.getElementById('dialogoverlay');
+        var dialogbox = document.getElementById('dialogbox');
+        dialogoverlay.style.display = "block";
+        dialogoverlay.style.height = winH+"px";
+        dialogbox.style.left = (winW/2) - (550 * .5)+"px";
+        dialogbox.style.top = "100px";
+        dialogbox.style.display = "block";
+        document.getElementById('dialogboxhead').innerHTML = "Health Plus";
+        document.getElementById('dialogboxbody').innerHTML = dialog;
+        document.getElementById('dialogboxfoot').innerHTML = '<button class="w3-button w3-red w3-hover-white w3-round-large" onclick="Alert.ok()">OK</button>';
+    }
+  this.ok = function(){
+    document.getElementById('dialogbox').style.display = "none";
+    document.getElementById('dialogoverlay').style.display = "none";
+  }
+}
+var Alert = new CustomAlert();
+    </script>
+
+
+  
+    <!-- Footer -->
+  <footer class="w3-content w3-padding-64 w3-text-grey w3-xlarge">
+    <i class="fa fa-facebook-official w3-hover-opacity"></i>
+    <i class="fa fa-instagram w3-hover-opacity"></i>
+    <i class="fa fa-pinterest-p w3-hover-opacity"></i>
+    <i class="fa fa-twitter w3-hover-opacity"></i>
+    
+    
+  </footer>
+  <script>
+  function clickIt(element){
+    document.getElementById("on_home").classList.remove("w3-black");
+    document.getElementById("on_about").classList.remove("w3-black");
+    document.getElementById("on_photos").classList.remove("w3-black");
+    document.getElementById("on_contact").classList.remove("w3-black");
+    element.classList.add("w3-black");
+    element.classList.remove("w3-hover-black");
+  }
+  </script>
+
+<!-- END PAGE CONTENT -->
+</div>
+
+</body>
+</html>

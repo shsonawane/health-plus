@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html>
+<title>Health Plus</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="assets/w3.css">
+<script type="text/javascript" src="alertify.js-0.3.11/src/alertify.js"></script> 
+<link rel="stylesheet" type="text/css" href="alertify.js-0.3.11/themes/alertify.core.css"> 
+<link rel="stylesheet" type="text/css" href="alertify.js-0.3.11/themes/alertify.default.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script
+        src="http://code.jquery.com/jquery-3.3.1.slim.js"
+        integrity="sha256-fNXJFIlca05BIO2Y5zh1xrShK3ME+/lYZ0j+ChxX2DA="
+        crossorigin="anonymous"></script>
+<style>
+body, h1,h2,h3,h4,h5,h6 {font-family: "Montserrat", sans-serif}
+.w3-row-padding img {margin-bottom: 12px}
+/* Set the width of the sidebar to 120px */
+.w3-sidebar {width: 120px;background: #222;}
+/* Add a left margin to the "page content" that matches the width of the sidebar (120px) */
+#main {margin-left: 120px}
+/* Remove margins from "page content" on small screens */
+@media only screen and (max-width: 600px) {#main {margin-left: 0}}
+
+form.example input[type=text] {
+    padding: 10px;
+    font-size: 17px;
+    border: 1px solid grey;
+    float: left;
+    width: 80%;
+    background: #f1f1f1;
+}
+
+form.example button {
+    float: left;
+    width: 20%;
+    padding: 10px;
+    background: #2196F3;
+    color: white;
+    font-size: 17px;
+    border: 1px solid grey;
+    border-left: none;
+    cursor: pointer;
+}
+
+#dialogoverlay{
+  display: none;
+  opacity: .8;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  background: #FFF;
+  width: 100%;
+  z-index: 10;
+}
+#dialogbox{
+  display: none;
+  position: fixed;
+  background: #000;
+  border-radius:7px; 
+  width:550px;
+  z-index: 10;
+}
+#dialogbox > div{ background:#FFF; margin:8px; }
+#dialogbox > div > #dialogboxhead{ background: red; font-size:19px; padding:10px; color:white; }
+#dialogbox > div > #dialogboxbody{ background:white; padding:20px; color:black; }
+#dialogbox > div > #dialogboxfoot{ background: white; padding:10px; text-align:right; }
+
+
+form.example button:hover {
+    background: #0b7dda;
+}
+
+form.example::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+#snackbar {
+    visibility: hidden;
+    min-width: 250px;
+    margin-left: -125px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 2px;
+    padding: 16px;
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    bottom: 30px;
+    font-size: 17px;
+}
+
+#snackbar.show {
+    visibility: visible;
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@-webkit-keyframes fadein {
+    from {bottom: 0; opacity: 0;} 
+    to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+    from {bottom: 30px; opacity: 1;} 
+    to {bottom: 0; opacity: 0;}
+}
+
+@keyframes fadeout {
+    from {bottom: 30px; opacity: 1;}
+    to {bottom: 0; opacity: 0;}
+}
+</style>
+
+<script>
+function CustomAlert(){
+    this.render = function(dialog){
+        var winW = window.innerWidth;
+        var winH = window.innerHeight;
+        var dialogoverlay = document.getElementById('dialogoverlay');
+        var dialogbox = document.getElementById('dialogbox');
+        dialogoverlay.style.display = "block";
+        dialogoverlay.style.height = winH+"px";
+        dialogbox.style.left = (winW/2) - (550 * .5)+"px";
+        dialogbox.style.top = "100px";
+        dialogbox.style.display = "block";
+        document.getElementById('dialogboxhead').innerHTML = "Health Plus";
+        document.getElementById('dialogboxbody').innerHTML = dialog;
+        document.getElementById('dialogboxfoot').innerHTML = '<button class="w3-button w3-red w3-hover-white w3-round-large" onclick="Alert.ok()">OK</button>';
+    }
+  this.ok = function(){
+    document.getElementById('dialogbox').style.display = "none";
+    document.getElementById('dialogoverlay').style.display = "none";
+  }
+}
+var Alert = new CustomAlert();
+</script>
+
+
+<body class="w3-white" >
+
+<!-- Icon Bar (Sidebar - hidden on small screens) -->
+<nav class="w3-sidebar w3-bar-block w3-small w3-hide-small w3-center w3-text-white">
+  <a id="on_home" href="#" onclick="clickIt(this)" class="w3-bar-item w3-button w3-padding-large w3-black">
+    <i class="fa fa-home w3-xxlarge"></i>
+    <p>HOME</p>
+  </a>
+  <a id="on_about" href="#doctor" onclick="clickIt(this)" class="w3-bar-item w3-button w3-padding-large w3-hover-black">
+    <i class="fa fa-user-md  w3-xxlarge"></i>
+    <p>DOCTOR</p>
+  </a>
+  
+  <a id="on_contact" href="#profile" onclick="clickIt(this)" class="w3-bar-item w3-button w3-padding-large w3-hover-black">
+    <i class="fa fas fa-user w3-xxlarge"></i>
+    <p>PROFILE</p>
+  </a>
+  <a id="on_contact" href="logout" onclick="clickIt(this)" class="w3-bar-item w3-button w3-padding-large w3-hover-black">
+    <i class="fa fas fa-sign-out w3-xxlarge"></i>
+    <p>LOGOUT</p>
+  </a>
+</nav>
+
+<!-- Navbar on small screens (Hidden on medium and large screens) -->
+<div class="w3-top w3-hide-large w3-hide-medium" id="myNavbar">
+  <div class="w3-bar w3-black w3-opacity w3-hover-opacity-off w3-center w3-small">
+    <a href="#" class="w3-bar-item w3-button" style="width:25% !important">HOME</a>
+    <a href="#about" class="w3-bar-item w3-button" style="width:25% !important">ABOUT</a>
+    <a href="#photos" class="w3-bar-item w3-button" style="width:25% !important">PHOTOS</a>
+    <a href="#contact" class="w3-bar-item w3-button" style="width:25% !important">CONTACT</a>
+  </div>
+</div>
+
+<!-- Page Content -->
+<div class="w3-padding-large" id="main">
+  <!-- Header/Home -->
+  <header class="w3-container w3-padding-32 w3-center w3-black" id="home">
+    <h1 class="w3-jumbo  w3-animate-top"><span class="w3-hide-small"></span> Health Plus </h1>
+    <p>Health Is Wealth.</p>
+  </header>
+
+   <div class="w3-row">
+  <div class="w3-col l4 m4 s4 w3-red w3-center"><p>
+    <a class="w3-button w3-white w3-round-large" href="tempfetch">Temperature</a>
+    </p></div>
+  <div class="w3-col l4 m4 s4 w3-red w3-center"><p>
+      <a class="w3-button w3-white w3-round-large" href="pulsefetch">Pulse Rate</a>
+    </p></div>
+  <div class="w3-col l4 m4 s4 w3-red w3-center"><p>
+      <a class="w3-button w3-white w3-round-large" href="ecgfetch">ECG Diagnosis</a>
+    </p></div>
+</div>
+
+<br>
+
+<div class="w3-center">
+<h2>Welcome <%=user.fname%> <%=user.lname%></h2>
+<%=user.ename%>
+</div>
+<br>
+
+<%if(ip == undefined){%>
+<div class="w3-border-red w3-center w3-large">
+    <label style="color: red;">IP Address</label><br>
+    <input type="text" id="ip" placeholder="Enter Device IP"><br><br>
+	<button class="w3-button w3-red w3-hover-white w3-round-large" onClick="connectIp(this)">
+		Connect Device
+	</button>
+	<br>
+</div><%}
+else{%>
+ <div class="w3-red">
+ <br>
+  <h4 class="w3-center">System is connected with IP: <%=ip%> 
+	<button class="w3-button w3-red w3-hover-white w3-round-large" onClick="refreshIp(this)">
+		<i class="fa fa-refresh"></i>
+	</button></h4>
+	<br>
+  </div>
+
+<%}%>
+	<div id="err" class="w3-center w3-padding" style="color: red;"></div><br>
+  <%if(!temp && !pulse ){%>
+
+    <%}else if(!pulse){%>
+	<hr class="w3-border-red w3-margin-large" style="margin-left: 300px; margin-right: 300px;">
+
+		<div class="w3-row w3-content w3-center w3-padding-64">
+	<div class="w3-red w3-center w3-third w3-border-red w3-border w3-margin-right" style="width:310px">
+	
+        <span style="font-size: 70px;"><i class="fa fa-thermometer-three-quarters"></i> <%=temp.data%></span><span class="w3-xxlarge"> °F</span>
+        <div class="w3-black w3-padding"><%=new Date(temp.timestamp).toDateString()%><br>
+        <span class="w3-small"><%=new Date(temp.timestamp).toLocaleTimeString()%></span>
+        </div>
+     </div>
+	 	<div class="w3-text-red w3-xxxlarge w3-twothird w3-margin-left w3-right" style="width:50%">
+	Check Your Pulse Too.
+     </div>
+	</div>
+    <%}
+    else if(!temp){%>
+	<hr class="w3-border-red w3-margin-large" style="margin-left: 300px; margin-right: 300px;">
+
+				<div class="w3-row w3-content w3-center w3-padding-64">
+	  <div class="w3-white w3-text-red w3-border w3-border-red w3-center w3-third" style="width:310px">
+	
+        <span style="font-size: 70px;"><i class="fa fa-heart"></i> <%=pulse.data%></span><span class="w3-xlarge"> BPM</span>
+        <div class="w3-black w3-padding"><%=new Date(pulse.timestamp).toDateString()%><br>
+        <span class="w3-small"><%=new Date(pulse.timestamp).toLocaleTimeString()%></span>
+        </div>
+     </div>
+	 	<div class="w3-text-red w3-xxxlarge w3-twothird w3-margin-left w3-right" style="width:50%">
+	Check Your Body Temperature Too.
+     </div>
+	</div>
+    <%} else{%>
+	<hr class="w3-border-red w3-margin-large" style="margin-left: 300px; margin-right: 300px;">
+
+<div class="w3-row w3-content w3-padding-64">
+	<div class="w3-text-red w3-xxlarge w3-third w3-margin-left w3-center" style="width:310px">
+	Recent Health Status
+     </div>
+	<div class="w3-red w3-center w3-third w3-border-red w3-border w3-margin-right" style="width:310px">
+	
+        <span style="font-size: 70px;"><i class="fa fa-thermometer-three-quarters"></i> <%=temp.data%></span><span class="w3-xxlarge"> °F</span>
+        <div class="w3-black w3-padding"><%=new Date(temp.timestamp).toDateString()%><br>
+        <span class="w3-small"><%=new Date(temp.timestamp).toLocaleTimeString()%></span>
+        </div>
+     </div>
+	 <div class="w3-white w3-text-red w3-border w3-border-red w3-center w3-third" style="width:310px">
+	
+        <span style="font-size: 70px;"><i class="fa fa-heart"></i> <%=pulse.data%></span><span class="w3-xlarge"> BPM</span>
+        <div class="w3-black w3-padding"><%=new Date(pulse.timestamp).toDateString()%><br>
+        <span class="w3-small"><%=new Date(pulse.timestamp).toLocaleTimeString()%></span>
+        </div>
+     </div>
+	</div>
+    <%}%>
+	<%if(ecg){%>
+	<div id="result" class="w3-row  w3-padding-large w3-margin-top">
+	<br>
+	<span class="w3-text-red w3-xxlarge w3-margin-left" id="beat" style="display: block;">
+		<i class="fa fa-bar-chart"></i> 
+		<i class="fa fa-heartbeat"></i>
+	<span class="w3-right w3-xlarge w3-text-red">
+			Heart Rate Variability Score &nbsp;&nbsp;&nbsp;
+	</span>
+	</span>
+	
+	<%
+				var json = ecg;
+				var hrv = "<tr><td><b>BPM </b></td><td>" + json.data.bpm.toFixed(3) + "</td><tr>";
+				hrv += "<tr><td><b>IBI </b></td><td>" + json.data.ibi.toFixed(3) + "</td><tr>";
+				hrv += "<tr><td><b>SDNN </b></td><td>" + json.data.sdnn.toFixed(3) + "</td><tr>";
+				hrv += "<tr><td><b>SDSD </b></td><td>" + json.data.sdsd.toFixed(3) + "</td><tr>";
+				hrv += "<tr><td><b>RMSSD </b></td><td>" + json.data.rmssd.toFixed(3) + "</td><tr>";
+				hrv += "<tr><td><b>PNN20 </b></td><td>" + json.data.nn20 + "</td><tr>";
+				hrv += "<tr><td><b>PNN20 </b></td><td>" + json.data.nn50 + "</td><tr>";
+				hrv += "<tr><td><b>PNN20 </b></td><td>" + json.data.pnn20.toFixed(3) + "</td><tr>";
+				hrv +=  "<tr><td><b>PNN50 </b></td><td>" + json.data.pnn50.toFixed(3) + "</td><tr>";
+				hrv +=  "<tr><td><b>Low Freq </b>&nbsp;&nbsp;</td><td>" + json.data.lf.toFixed(3) + "</td><tr>";
+				hrv +=  "<tr><td><b>High Freq </b>&nbsp;&nbsp;</td><td>" + json.data.hf.toFixed(3) + "</td><tr>";
+				hrv +=  "<tr><td><b>Low Freq </b>&nbsp;&nbsp;</td><td>" +  (json.data.lf/json.data.hf).toFixed(3) + "</td><tr>";
+				
+	%>
+	<div class="w3-twothird w3-container">
+	<h6 id="ts" class="w3-text-red w3-center"><b><%=new Date(ecg.timestamp).toDateString()%> at <%=new Date(ecg.timestamp).toLocaleTimeString()%></b></h6>
+	<img id="hrvimg" class="w3-padding" src="/hrv_img?ts=<%=ecg.timestamp%>&amp;user=<%=ecg.uname%>" style="width: 100%"></div>
+	<div class="w3-third w3-container w3-padding-16 w3-text-white w3-card" id="result" style="background-color: #222">
+	<table class=" w3-small " id="hrvtable" style="border-collapse: collapse; border-spacing: 0;">
+	<%- hrv%>
+	</table>
+	</div>
+	</div>
+	<%}%>
+
+	<br>
+<hr class="w3-border-red w3-margin-large" style="margin-left: 300px; margin-right: 300px;">
+<br>
+  <div id="dialogoverlay"></div>
+  <div id="dialogbox">
+    <div>
+      <div id="dialogboxhead"></div>
+      <div id="dialogboxbody"></div>
+      <div id="dialogboxfoot"></div>
+    </div>
+  </div>
+
+
+  <h2 class="w3-center" id="doctor">My Doctors</h2>
+  <% 
+  console.log(user.docid.length);
+    if(user.docid.length){%>
+   <div class="w3-content w3-justify w3-text-black w3-padding-55" id="about">
+    
+    <ul class="w3-ul w3-margin-top" style="list-style-type: none;">
+   
+    <%
+      for(var i = 0; i < user.docid.length; i++){
+      for(var j = 0; j < doc.length; j++){
+      if(doc[j].uname == user.docid[i]){
+    %>
+    <li class="w3-bar" onclick="window.location='docprof?duname=<%=doc[j].uname%>'">
+      <form action="removedoc" class="w3-right">
+      <input type="hidden" name="doctorid" value="<%=doc[j].uname%>">
+      <span><button class="w3-button w3-red w3-hover-white w3-round-large" onclick="Alert.render('Doctor removed successfully.')">Remove Doctor</button></span>
+        </form>
+        <img src="assets/doctor.png" class="w3-bar-item w3-circle w3-hide-small" style="width:85px">
+      <div class="w3-bar-item">
+       <span class="w3-large w3-hover-text-red" style="cursor: pointer;">Dr. <%=doc[j].fname%> <%=doc[j].lname%></span><br>
+       <span><%=doc[j].specialization%>, <%=doc[j].hospital%></span>
+     </div>
+    </li>
+    <%
+    }
+    }
+    } %>
+    </ul>
+    </div>
+    <%} else {%>
+    <div class="w3-content w3-justify w3-text-black w3-padding-32" id="about">
+    <h4 class="w3-center w3-text-red">No Added Doctors</h4>
+	</div>
+    <%}%>
+    
+     <div class="w3-content w3-justify w3-text-black w3-padding-55">
+  <p>Search for doctors in the input field.</p>
+  <% if (user.docid != undefined){%>
+  <input class="w3-input w3-border w3-padding" type="text" placeholder="Search for names.." id="myInput" onkeyup="myFunction()">
+  
+  <div style="max-height: 400px; overflow: auto;">
+  <ul class="w3-ul w3-margin-top" id="myUL">
+  <%
+  var a = [];
+  a = doc;
+      for(var i = 0; i < doc.length; i++){
+        for(var j = 0; j < user.docid.length; j++){
+          if(doc[i].uname == user.docid[j]){
+          var index = a.indexOf(doc[i]);
+          if (index > -1) {
+            a.splice(index, 1);
+            }
+          }
+        }
+      }
+
+    for(var i = 0; i < a.length; i++){
+    %>
+    <li  onclick="window.location='docprof?duname=<%=a[i].uname%>'" class="w3-bar">
+      <form action="adddoc" class="w3-right">
+      <input type="hidden" name="doctorid" value="<%=a[i].uname%>">
+      <span><button class="w3-button w3-red w3-hover-white w3-round-large" onclick="Alert.render('Doctor added successfully.')" name="button">Add Doctor</button></span>   
+		</form>
+      <img src="assets/doctor.png" class="w3-bar-item w3-circle w3-hide-small" style="width:85px">
+      <div class="w3-bar-item">
+       <span class="w3-large w3-hover-text-red" style="cursor: pointer;">Dr. <%=a[i].fname%> <%=a[i].lname%></span><br>
+       <span><%=a[i].specialization%>, <%=doc[i].hospital%></span>   
+        </div></li><br>
+    
+  <% }%>
+  </ul>
+  </div>    
+  <%} else {%>
+   <input class="w3-input w3-border w3-padding" type="text" placeholder="Search for names.." id="myInput" onkeyup="myFunction()">
+       <div style="max-height: 400px; overflow: auto;">
+  <ul class="w3-ul w3-margin-top" id="myUL">
+  
+    <%for(var i =0; i< doc.length; i++){%>
+        <li  onclick="window.location='docprof?duname=<%=doc[i].uname%>'" class="w3-bar">
+      <form action="adddoc" class="w3-right">
+      <input type="hidden" name="doctorid" value="<%=doc[i].uname%>">
+      <span><button class="w3-button w3-red w3-hover-white w3-round-large" onclick="Alert.render('Doctor added successfully.')" name="button">Add Doctor</button></span>   
+		</form>
+      <img src="assets/doctor.png" class="w3-bar-item w3-circle w3-hide-small" style="width:85px">
+      <div class="w3-bar-item">
+       <span class="w3-large w3-hover-text-red" style="cursor: pointer;">Dr. <%=doc[i].fname%> <%=doc[i].lname%></span><br>
+       <span><%=doc[i].specialization%>, <%=doc[i].hospital%></span>   
+        </div></li><br>
+  <%}%>
+ 
+  </ul>
+  </div>
+  <%}%>
+</div>
+<script>
+function myFunction() {
+    var input, filter, ul, li, a, i;
+    input = document.getElementById("myInput");
+    filter = input.value.toUpperCase();
+    ul = document.getElementById("myUL");
+    li = ul.getElementsByTagName("li");
+    for (i = 0; i < li.length; i++) {
+        if (li[i].innerHTML.toUpperCase().indexOf(filter) > -1) {
+            li[i].style.display = "";
+        } else {
+            li[i].style.display = "none";
+        }
+    }
+}
+
+function connectIp(button) {
+     button.innerHTML = "<i class='fa fa-circle-o-notch fa-spin'></i> Connecting...";
+	 document.getElementById("err").innerHTML = "";
+	 var ip = document.getElementById("ip").value;
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4) {
+		if( this.status == 200){
+			     window.location = "";
+		}else{
+				button.innerHTML = "Connect";
+				document.getElementById("err").innerHTML = "Error Connecting! <b>Retry.</b>";
+		}
+    }
+  };
+  xhttp.open("GET", "/connect?ip="+ip, true);
+  xhttp.send();
+}
+
+function refreshIp(button) {
+     button.innerHTML = "<i class='fa fa-circle-o-notch fa-spin'></i>";
+	 document.getElementById("err").innerHTML = "";
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4) {
+		if( this.status == 200){
+			     window.location = "";
+		}else{
+				button.innerHTML = "<i class='fa fa-refresh'></i>";
+				document.getElementById("err").innerHTML = "Error Connecting! <b>Retry.</b>";
+		}
+    }
+  };
+  xhttp.open("GET", "/connect?ip=<%=ip%>", true);
+  xhttp.send();
+}
+
+</script>
+   
+  
+<br>
+<hr class="w3-border-red w3-margin-large" style="margin-left: 300px; margin-right: 300px;">
+<br>
+
+
+  <h2 class="w3-center" id="profile"><p>Profile</p></h2>
+  
+  <form  class="w3-padding-large" action="update">
+    <label class="w3-text-black w3-large">Firstname</label>
+    <input class="w3-input w3-border w3-padding" type="text" name="fname" value="<%=user.fname%>"><br>
+    <label class="w3-text-black w3-large">Lastname</label>
+    <input class="w3-input w3-border w3-padding" type="text" name="lname" value="<%=user.lname%>"><br>
+    <label class="w3-text-black w3-large">E-mail</label>
+    <input class="w3-input w3-border w3-padding" type="text" name="ename" value="<%=user.ename%>"><br> 
+    <label class="w3-text-black w3-large">Date Of Birth </label>
+    <input class="w3-input w3-border w3-padding" type="date" name="dob" value="<%=user.dob%>"><br>
+    <label class="w3-text-black w3-large">Phone</label>
+    <input class="w3-input w3-border w3-padding" type="text" name="phone" value="<%=user.phone%>"><br>
+    <label class="w3-text-black w3-large">Blood-Group</label>
+    <input class="w3-input w3-border w3-padding" type="text" name="bg" value="<%=user.bloodgroup%>"><br>
+    <label class="w3-text-black w3-large">Weight(kg)</label>
+    <input class="w3-input w3-border w3-padding" type="text" name="weight" value="<%=user.weight%>"><br>
+    <label class="w3-text-black w3-large">Height(cm)</label>
+    <input class="w3-input w3-border w3-padding" type="text" name="height" value="<%=user.height%>"><br>
+    <label class="w3-text-black w3-large">Chronic-Diseases</label>
+    <input class="w3-input w3-border w3-padding" type="text" name="disease" value="<%=user.disease%>"><br>
+    <label class="w3-text-black w3-large">About Me</label>
+    <textarea class="w3-input w3-border w3-padding" name= "description"><%=user.description%></textarea><br>
+    <button class="w3-button w3-center w3-red w3-hover-white w3-round-large">Update Profile</button>
+  </form><br>
+  
+  
+  <h2 class="w3-center"><p>Change Password</p></h2>
+  
+  <form  class="w3-padding-large" method="GET" action="javascript:submitdata()">
+    <label class="w3-text-black w3-large">Current Password</label>
+    <input id="curp" class="w3-input w3-border w3-padding" type="Password" required name="currentpass"><br>
+    <label class="w3-text-black w3-large">New Password</label>
+    <input class="w3-input w3-border w3-padding" type="Password" name="newpass" required id="np"><br>
+    <label class="w3-text-black w3-large">Confirm Password</label>
+    <input class="w3-input w3-border w3-padding" type="Password" name="confirmpass" required id="cp"><br>
+    <div id="if" class="w3-text-red">
+      
+    </div><br>
+    <button id="button" class="w3-button w3-center w3-red w3-hover-white w3-round-large">Update Password</button>
+  </form><br>
+
+<div id="snackbar"><a href="facebook.com">Some text some message..</a></div>
+
+<script>
+function myFunction() {
+    var x = document.getElementById("snackbar");
+    x.className = "show";
+    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+}
+</script>
+<script type="text/javascript">
+
+function submitdata()
+{
+ var newpass=document.getElementById( "np" ).value;
+ var confirmpass=document.getElementById( "cp" ).value;
+ var currentpass=document.getElementById( "curp" ).value;
+ 
+ if(confirmpass == newpass){
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4) {
+      if(this.status == 200){
+        Alert.render('Password changed successfully.');
+        window.location = 'patientLogin';
+      }else{
+        document.getElementById("if").innerHTML = "Invalid current password!";
+      }
+    }
+  };
+  xhttp.open("GET", "/updatepatpass?currentpass="+currentpass+"&newpass="+newpass, true);
+  xhttp.send();
+  }else{
+    document.getElementById("if").innerHTML = "Password don't match!";
+  }
+}
+
+    </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    <!-- Footer -->
+  <footer class="w3-content w3-padding-64 w3-text-grey w3-xlarge">
+    <i class="fa fa-facebook-official w3-hover-opacity"></i>
+    <i class="fa fa-instagram w3-hover-opacity"></i>
+    <i class="fa fa-pinterest-p w3-hover-opacity"></i>
+    <i class="fa fa-twitter w3-hover-opacity"></i>
+  
+    
+  </footer>
+  <script>
+  function clickIt(element){
+    document.getElementById("on_home").classList.remove("w3-black");
+    document.getElementById("on_about").classList.remove("w3-black");
+    document.getElementById("on_photos").classList.remove("w3-black");
+    document.getElementById("on_contact").classList.remove("w3-black");
+    element.classList.add("w3-black");
+    element.classList.remove("w3-hover-black");
+  }
+  </script>
+
+<!-- END PAGE CONTENT -->
+</div>
+
+</body>
+</html>
