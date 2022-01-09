@@ -38,6 +38,6 @@ Open displayed link in browser to view the site.
 npm run dev
 ```
 
-## Check it out here..
+## Check it out here
 
 https://health-plus-web.herokuapp.com/
