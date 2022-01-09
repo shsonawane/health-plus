@@ -1,4 +1,4 @@
 {
-    "hostUrl": "mongodb+srv://scube_rw:SyUZHpvkhl5CgvhO@scube-strapi-cluster.reigq.mongodb.net",
+    "hostUrl": "mongodb+srv://your-mongo-db-connection-url",
     "database": "healthplus"
 }
