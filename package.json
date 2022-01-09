@@ -1,8 +1,19 @@
 {
   "name": "health-plus",
   "version": "1.0.1",
-  "description": "health plus web application",
+  "description": "Real time health monitoring app (Health+) web application",
   "private": "true",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "keywords": [],
+  "author": "Shubham Sonawane <sonawane.sh@northeastern.edu>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shsonawane/health-plus.git"
+  },
   "dependencies": {
     "dateformat": "^3.0.3",
     "ejs": "^2.5.7",

@@ -287,7 +287,7 @@ app.get('/hrv', function (req, res) {
   for (var i = 1; i < ecg.length; i++) {
     csv += "\n" + ecg[i];
   }
-  var dir = './ecg/' + uname;
+  var dir = '/tmp/' + uname;
   try {
     fs.statSync(dir);
   } catch (e) {
