@@ -8,6 +8,9 @@ const fs = require("fs");
 const PythonShell = require('python-shell');
 const dbConfig = require("./config/mongodb.json");
 const MongoClient = require('mongodb').MongoClient;
+const mode   = process.env.NODE_ENV || "development";
+const port = process.env.PORT || 3000;
+const dbUrl = process.env.DB_URL;
 
 /**
  * Middleware to manage user sessions.
@@ -40,7 +43,7 @@ process.on('uncaughtException', function (err) {
 /**
  * Connect to MongoDB.
  */
-const url = `${dbConfig.hostUrl}/${dbConfig.database}?retryWrites=true&w=majority`;
+const url = dbUrl || `${dbConfig.hostUrl}/${dbConfig.database}?retryWrites=true&w=majority`;
 MongoClient.connect(url, function (err, db) {
   console.log("Connecting DB: ", url);
   if (err) throw err;
@@ -51,17 +54,23 @@ MongoClient.connect(url, function (err, db) {
 /**
  * Start express service.
  */
-server.listen(3000);
+server.listen(port);
+console.log("Enironment: ", mode);
 console.log('Open this link in browser to view the site.\n');
-console.log('http://localhost:3000\n');
+console.log('http://localhost:' + port);
 var users = [];
 var connections = [];
 
+/**
+ * Fetch user for current session.
+ * @param {Express.Request} req    request object.
+ * @param {Express.Response} res   response object.
+ * @returns {Object}               user object.
+ */
 function getSessionUser(req, res) {
-  console.log("users: ", users);
   let user = req.session.user;
   if(!user) {
-    throw "Session Expired..";
+    throw new Error("Session Expired");
   }
   return user;
 }
@@ -175,7 +184,7 @@ app.get('/temp', function (req, res) {
  * Fetch temperature details of user to display on IoT device.
  */
 app.get('/tempfetch', function (req, res) {
-  var user = req.session.user;
+  var user = getSessionUser(req, res);
   var ip = req.session.ip;
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
@@ -242,7 +251,7 @@ app.get('/pulse', function (req, res) {
  * Fetch pulse rate details of user to display on IoT device.
  */
 app.get('/pulsefetch', function (req, res) {
-  var user = req.session.user;
+  var user = getSessionUser(req, res);
   var ip = req.session.ip;
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
@@ -260,7 +269,7 @@ app.get('/pulsefetch', function (req, res) {
  * Fetch ecg details of user to display on IoT device.
  */
 app.get('/ecgfetch', function (req, res) {
-  var user = req.session.user;
+  var user = getSessionUser(req, res);
   var ip = req.session.ip;
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
@@ -306,7 +315,7 @@ app.get('/hrv', function (req, res) {
   var ecg = JSON.parse(req.query.ecg);
   var csv = ecg[0] + "";
   var timestamp = Date.now();
-  var uname = req.session.user.uname;
+  var uname = getSessionUser(req, res).uname;
   for (var i = 1; i < ecg.length; i++) {
     csv += "\n" + ecg[i];
   }
@@ -427,7 +436,7 @@ app.get('/docinsert', function (req, res) {
  * Connect web app with IoT device.
  */
 app.get('/connect', function (req, res) {
-  var user = req.session.user;
+  var user = getSessionUser(req, res);
   var ip = req.query.ip;
   var options = {
     host: ip + '',
@@ -452,7 +461,7 @@ app.get('/connect', function (req, res) {
  */
 app.get('/docprof', function (req, res) {
   var uname = req.query.duname;
-  var user = req.session.user.uname;
+  var user = getSessionUser(req, res).uname;
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
     var dbo = db.db(dbConfig.database);
@@ -488,7 +497,7 @@ app.get('/docprof', function (req, res) {
  */
 app.get('/patientprof', function (req, res) {
   var uname = req.query.puname;
-  var user = req.session.user.uname;
+  var user = getSessionUser(req, res).uname;
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
     var dbo = db.db(dbConfig.database);
@@ -540,7 +549,7 @@ app.get('/patientprof', function (req, res) {
  * Fetch user home page details.
  */
 app.get('/home', function (req, res) {
-  var user = req.session.user;
+  var user = getSessionUser(req, res);
   var uname = user.uname;
   var ip = req.session.ip;
   MongoClient.connect(url, function (err, db) {
@@ -587,7 +596,7 @@ app.get('/dochome', function (req, res) {
     res.redirect('/patientLogin');
   } else {
     console.log("Session OK");
-    var user = req.session.user;
+    var user = getSessionUser(req, res);
     MongoClient.connect(url, function (err, db) {
       if (err) throw err;
       var dbo = db.db(dbConfig.database);
@@ -657,7 +666,7 @@ app.get('/docauth', function (req, res) {
  * Update password user details.
  */
 app.get('/update', function (req, res) {
-  var user = req.session.user;
+  var user = getSessionUser(req, res);
   var uname = user.uname;
   var fname = req.query.fname;
   var lname = req.query.lname;
@@ -700,7 +709,7 @@ app.get('/update', function (req, res) {
  * Update paitent user password.
  */
 app.get('/updatepatpass', function (req, res) {
-  var user = req.session.user;
+  var user = getSessionUser(req, res);
   var uname = user.uname;
   var currentpass = req.query.currentpass;
   var newpass = req.query.newpass;
@@ -733,7 +742,7 @@ app.get('/updatepatpass', function (req, res) {
  * Update doctor user password.
  */
 app.get('/updatedocpass', function (req, res) {
-  var user = req.session.user;
+  var user = getSessionUser(req, res);
   var uname = user.uname;
   var currentpass = req.query.currentpass;
   var newpass = req.query.newpass;
@@ -769,7 +778,7 @@ app.get('/updatedocpass', function (req, res) {
  * Update doctor user details.
  */
 app.get('/updatedoc', function (req, res) {
-  var user = req.session.user;
+  var user = getSessionUser(req, res);
   var uname = user.uname;
   var fname = req.query.fname;
   var lname = req.query.lname;
@@ -807,7 +816,7 @@ app.get('/updatedoc', function (req, res) {
  * Add doctor to user profile.
  */
 app.get('/adddoc', function (req, res) {
-  var user = req.session.user;
+  var user = getSessionUser(req, res);
   var uname = user.uname;
   var doctorid = req.query.doctorid;
   MongoClient.connect(url, function (err, db) {
@@ -834,7 +843,7 @@ app.get('/adddoc', function (req, res) {
  */
 app.get('/removedoc', function (req, res) {
 
-  var user = req.session.user;
+  var user = getSessionUser(req, res);
   var doctorid = req.query.doctorid;
   var index = user.docid.indexOf(doctorid);
   if (index > -1) {
@@ -921,4 +930,19 @@ app.get('/doctor/doclogin', function (req, res) {
     error = "Login Error, invalid input!";
   }
   res.render('doctor/doclogin', { error: "" + error });
+});
+
+/**
+ * Not found page.
+ */
+ app.use((req, res, next) => {
+  res.redirect('/404.html');
+})
+
+/**
+ * Express Error handler.
+ */
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.redirect('/');
 });
