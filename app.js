@@ -58,8 +58,6 @@ server.listen(port);
 console.log("Enironment: ", mode);
 console.log('Open this link in browser to view the site.\n');
 console.log('http://localhost:' + port);
-var users = [];
-var connections = [];
 
 /**
  * Fetch user for current session.
@@ -80,13 +78,11 @@ function getSessionUser(req, res) {
  */
 io.sockets.on('connection', function (socket) {
   //connect
-  connections.push(socket);
-  console.log('Connected: %s sockets connected', connections.length);
+  console.log('Connected: new socket connected');
 
   //disconnect
   socket.on('disconnect', function (data) {
-    connections.splice(connections.indexOf(socket), 1);
-    console.log('Disconnected: %s sockets connected', connections.length);
+    console.log('Disconnected sockets');
   });
 
   //send messages
@@ -109,13 +105,7 @@ io.sockets.on('connection', function (socket) {
   socket.on('new user', function (data, callback) {
     callback(true);
     socket.username = data;
-    users.push(socket.username);
-    updateUsernames();
   });
-
-  function updateUsernames() {
-    io.sockets.emit('get users', users);
-  }
 });
 
 /**
@@ -159,16 +149,6 @@ app.get('/temp', function (req, res) {
                       phone.push(resultDoc[i].phone);
                     }
                   }
-                  phone = Array.from(new Set(phone));
-                  var options = {
-                    host: "sms.ssdindia.com",
-                    path: "/api/sendhttp.php?authkey=16219A1XqcapeE5ae6efbc&mobiles=" + phone + "&message="
-                      + encodeURIComponent(msg) + "&sender=HEALTH&route=1&country=0"
-                  };
-                  console.log(options.path);
-                  http.get(options, function (r) {
-                    console.log('STATUS: ' + r.statusCode);
-                  });
                   db.close();
                 });
             });
