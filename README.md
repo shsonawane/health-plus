@@ -28,7 +28,7 @@ Running above command will start serve and display following output
 
 Open this link in browser to view the site
 
-http://localhost:<PORT>
+http://localhost:3000
 
 ```
 Open displayed link in browser to view the site.

@@ -6,6 +6,8 @@ const server = http.createServer(app);
 const io = require('socket.io').listen(server);
 const fs = require("fs");
 const PythonShell = require('python-shell');
+const dbConfig = require("./config/mongodb.json");
+const MongoClient = require('mongodb').MongoClient;
 
 /**
  * Middleware to manage user sessions.
@@ -38,17 +40,31 @@ process.on('uncaughtException', function (err) {
 /**
  * Connect to MongoDB.
  */
-const url = 'mongodb://localhost:27017/';
-const MongoClient = require('mongodb').MongoClient;
+const url = `${dbConfig.hostUrl}/${dbConfig.database}?retryWrites=true&w=majority`;
+MongoClient.connect(url, function (err, db) {
+  console.log("Connecting DB: ", url);
+  if (err) throw err;
+  db.db(dbConfig.database);
+  db.close();
+});
 
 /**
  * Start express service.
  */
 server.listen(3000);
-console.log('Connected Port 3000');
-
+console.log('Open this link in browser to view the site.\n');
+console.log('http://localhost:3000\n');
 var users = [];
 var connections = [];
+
+function getSessionUser(req, res) {
+  console.log("users: ", users);
+  let user = req.session.user;
+  if(!user) {
+    throw "Session Expired..";
+  }
+  return user;
+}
 
 /**
  * Start websocket api connection using socket.io.
@@ -70,7 +86,7 @@ io.sockets.on('connection', function (socket) {
     data.timestamp = Date.now();
     MongoClient.connect(url, function (err, db) {
       if (err) throw err;
-      var dbo = db.db("healthplus");
+      var dbo = db.db(dbConfig.database);
       var myobj = data;
       dbo.collection("chat").insertOne(myobj, function (err, res) {
         if (err) throw err;
@@ -94,6 +110,13 @@ io.sockets.on('connection', function (socket) {
 });
 
 /**
+ * Serve home page of web app.
+ */
+ app.get('/', function (req, res) {
+  res.redirect('/patientLogin');
+});
+
+/**
  * Update temperature of user form IoT device.
  */
 app.get('/temp', function (req, res) {
@@ -103,7 +126,7 @@ app.get('/temp', function (req, res) {
   if (data != -1) {
     MongoClient.connect(url, function (err, db) {
       if (err) throw err;
-      var dbo = db.db("healthplus");
+      var dbo = db.db(dbConfig.database);
       var myobj = {
         uname: uname + "",
         data: data + "",
@@ -156,7 +179,7 @@ app.get('/tempfetch', function (req, res) {
   var ip = req.session.ip;
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
-    var dbo = db.db("healthplus");
+    var dbo = db.db(dbConfig.database);
     var query = { uname: user.uname };
     dbo.collection("temperature").find(query).toArray(function (err, result_temp) {
       if (err) throw err;
@@ -177,7 +200,7 @@ app.get('/pulse', function (req, res) {
   if (data != -1) {
     MongoClient.connect(url, function (err, db) {
       if (err) throw err;
-      var dbo = db.db("healthplus");
+      var dbo = db.db(dbConfig.database);
       var myobj = { uname: uname + "", data: data + "", unit: "BPM", timestamp: new Date().toString() + "" };
       dbo.collection("pulse rate").insertOne(myobj, function (err, res) {
         if (err) throw err;
@@ -223,7 +246,7 @@ app.get('/pulsefetch', function (req, res) {
   var ip = req.session.ip;
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
-    var dbo = db.db("healthplus");
+    var dbo = db.db(dbConfig.database);
     var query = { uname: user.uname };
     dbo.collection("pulse rate").find(query).toArray(function (err, result_pulse) {
       if (err) throw err;
@@ -241,7 +264,7 @@ app.get('/ecgfetch', function (req, res) {
   var ip = req.session.ip;
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
-    var dbo = db.db("healthplus");
+    var dbo = db.db(dbConfig.database);
     var query = { uname: user.uname };
     dbo.collection("ecg_diagnosis").find(query).toArray(function (err, result_ecg) {
       if (err) throw err;
@@ -313,7 +336,7 @@ app.get('/hrv', function (req, res) {
       var json = JSON.parse(result[2].replace(/'/g, '"'));
       MongoClient.connect(url, function (err, db) {
         if (err) throw err;
-        var dbo = db.db("healthplus");
+        var dbo = db.db(dbConfig.database);
         var myobj = { uname: uname + "", timestamp: timestamp, data: json };
         dbo.collection("ecg_diagnosis").insertOne(myobj, function (err, res1) {
           if (err) throw err;
@@ -338,7 +361,7 @@ app.get('/insert', function (req, res) {
   var pass1 = req.query.pass1;
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
-    var dbo = db.db("healthplus");
+    var dbo = db.db(dbConfig.database);
     var user = {
       fname: fname + "",
       lname: lname + "",
@@ -377,7 +400,7 @@ app.get('/docinsert', function (req, res) {
   var pass1 = req.query.pass1;
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
-    var dbo = db.db("healthplus");
+    var dbo = db.db(dbConfig.database);
     var user = { fname: fname + "", lname: lname + "", ename: ename + "", uname: uname + "", pass1: pass1 + "" };
     dbo.collection("doctor").findOne({ uname: uname + "" }, function (err, result) {
       if (err) throw err;
@@ -398,13 +421,6 @@ app.get('/docinsert', function (req, res) {
 
   });
 
-});
-
-/**
- * Serve home page of web app.
- */
-app.get('/', function (req, res) {
-  res.redirect('/patientLogin');
 });
 
 /**
@@ -439,7 +455,7 @@ app.get('/docprof', function (req, res) {
   var user = req.session.user.uname;
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
-    var dbo = db.db("healthplus");
+    var dbo = db.db(dbConfig.database);
     dbo.collection("users").findOne({ uname: user }, function (err, result_user) {
       if (err) throw err;
       dbo.collection("doctor").findOne({ uname: uname }, function (err, result) {
@@ -475,7 +491,7 @@ app.get('/patientprof', function (req, res) {
   var user = req.session.user.uname;
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
-    var dbo = db.db("healthplus");
+    var dbo = db.db(dbConfig.database);
     dbo.collection("users").findOne({ uname: uname }, function (err, result) {
       if (err) throw err;
       var query = { uname: uname };
@@ -494,7 +510,6 @@ app.get('/patientprof', function (req, res) {
               var query = { from: patname, to: user };
               dbo.collection("chat").find(query).toArray(function (err, result_chat2) {
                 var result_chat = result_chat1.concat(result_chat2);
-                var final_chat = result_chat.sort({ timestamp: -1 });
                 result_chat.sort(function (a, b) {
                   return parseFloat(a.timestamp) - parseFloat(b.timestamp);
                 });
@@ -530,7 +545,7 @@ app.get('/home', function (req, res) {
   var ip = req.session.ip;
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
-    var dbo = db.db("healthplus");
+    var dbo = db.db(dbConfig.database);
     dbo.collection("users").findOne({ uname: uname }, function (err, result_user) {
       if (err) throw err;
       var query = { uname: user.uname };
@@ -575,7 +590,7 @@ app.get('/dochome', function (req, res) {
     var user = req.session.user;
     MongoClient.connect(url, function (err, db) {
       if (err) throw err;
-      var dbo = db.db("healthplus");
+      var dbo = db.db(dbConfig.database);
 
       var uname = user.uname;
       dbo.collection("users").find({ docid: uname }).toArray(function (err, result_patient) {
@@ -599,7 +614,7 @@ app.get('/patientAuth', function (req, res) {
   var pass = req.query.pass;
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
-    var dbo = db.db("healthplus");
+    var dbo = db.db(dbConfig.database);
     dbo.collection("users").findOne({ uname: uname, pass1: pass }, function (err, result) {
       if (err) throw err;
       if (result) {
@@ -622,7 +637,7 @@ app.get('/docauth', function (req, res) {
   var pass = req.query.pass;
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
-    var dbo = db.db("healthplus");
+    var dbo = db.db(dbConfig.database);
     dbo.collection("doctor").findOne({ uname: uname, pass1: pass }, function (err, result) {
       if (err) throw err;
       if (result) {
@@ -658,7 +673,7 @@ app.get('/update', function (req, res) {
 
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
-    var dbo = db.db("healthplus");
+    var dbo = db.db(dbConfig.database);
     var myquery = { uname: uname + "" };
     var updatedData = {
       uname: uname, fname: fname, lname: lname, ename: ename, pass1: pass1, dob: dob, phone: phone, bloodgroup: bg,
@@ -691,7 +706,7 @@ app.get('/updatepatpass', function (req, res) {
   var newpass = req.query.newpass;
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
-    var dbo = db.db("healthplus");
+    var dbo = db.db(dbConfig.database);
     var newvalues = { $set: { pass1: newpass + "" } };
 
     dbo.collection("users").findOne({ uname: uname, pass1: currentpass }, function (err, result) {
@@ -727,7 +742,7 @@ app.get('/updatedocpass', function (req, res) {
 
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
-    var dbo = db.db("healthplus");
+    var dbo = db.db(dbConfig.database);
     var newvalues = { $set: { pass1: newpass + "" } };
 
     dbo.collection("doctor").findOne({ uname: uname, pass1: currentpass }, function (err, result) {
@@ -768,7 +783,7 @@ app.get('/updatedoc', function (req, res) {
 
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
-    var dbo = db.db("healthplus");
+    var dbo = db.db(dbConfig.database);
     var myquery = { uname: uname + "" };
     var updatedData = {
       uname: uname, fname: fname, lname: lname, ename: ename, pass1: pass1, 
@@ -797,7 +812,7 @@ app.get('/adddoc', function (req, res) {
   var doctorid = req.query.doctorid;
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
-    var dbo = db.db("healthplus");
+    var dbo = db.db(dbConfig.database);
     dbo.collection("users").findOne({ uname: uname }, function (err, result) {
       if (result.docid) {
         result.docid.push(doctorid + "");
@@ -829,7 +844,7 @@ app.get('/removedoc', function (req, res) {
 
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
-    var dbo = db.db("healthplus");
+    var dbo = db.db(dbConfig.database);
     var myquery = { uname: user.uname + "" };
     var newvalues = { $set: user };
     dbo.collection("users").updateOne(myquery, newvalues, function (err, result) {
