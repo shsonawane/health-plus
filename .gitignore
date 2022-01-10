@@ -106,3 +106,5 @@ dist
 #python
 __pycache__
 ./ecg/__pycache__
+
+.DS_Store
